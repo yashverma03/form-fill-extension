@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Job Application — Extension Test Form</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <header class="header">
+        <h1>Software Engineer — Application</h1>
+        <p>
+          Sample job form for testing the Form Filler extension. Fields marked
+          <span class="tag tag--config">config</span> match
+          <code>answers.config.example.ts</code>. Fields marked
+          <span class="tag tag--extra">extra</span> are intentionally uncovered.
+        </p>
+      </header>
+
+      <form id="job-application" action="#" method="post" novalidate>
+        <!-- ── Personal ─────────────────────────────────────────────── -->
+        <section aria-labelledby="section-personal">
+          <h2 id="section-personal">Personal Information</h2>
+          <p class="section-note">Basic identity fields</p>
+
+          <div class="field-row">
+            <div class="field">
+              <label class="required" for="first-name">First Name</label>
+              <input type="text" id="first-name" name="first_name" autocomplete="given-name" />
+              <span class="tag tag--config">config</span>
+            </div>
+            <div class="field">
+              <label class="required" for="last-name">Last Name</label>
+              <input type="text" id="last-name" name="last_name" autocomplete="family-name" />
+              <span class="tag tag--config">config</span>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="middle-name">Middle Name</label>
+            <input type="text" id="middle-name" name="middle_name" />
+            <span class="tag tag--extra">extra</span>
+            <p class="hint">Not in example config — should remain unmatched.</p>
+          </div>
+
+          <div class="field">
+            <label for="gender">Gender</label>
+            <div class="radio-group" id="gender" role="radiogroup" aria-label="Gender">
+              <label><input type="radio" name="gender" value="Male" /> Male</label>
+              <label><input type="radio" name="gender" value="Female" /> Female</label>
+              <label><input type="radio" name="gender" value="Non-binary" /> Non-binary</label>
+              <label
+                ><input type="radio" name="gender" value="Prefer not to say" /> Prefer not to
+                say</label
+              >
+            </div>
+            <span class="tag tag--extra">extra</span>
+          </div>
+        </section>
+
+        <!-- ── Contact ──────────────────────────────────────────────── -->
+        <section aria-labelledby="section-contact">
+          <h2 id="section-contact">Contact Details</h2>
+          <p class="section-note">Email, phone, and preferences</p>
+
+          <div class="field">
+            <label class="required" for="email">Email Address</label>
+            <input type="email" id="email" name="email" autocomplete="email" />
+            <span class="tag tag--config">config</span>
+          </div>
+
+          <div class="field">
+            <label class="required" for="phone">Phone Number</label>
+            <input type="tel" id="phone" name="phone" autocomplete="tel" />
+            <span class="tag tag--config">config</span>
+          </div>
+
+          <div class="field">
+            <label for="mobile-type">Mobile Type</label>
+            <select id="mobile-type" name="mobile_type">
+              <option value="">Select type</option>
+              <option value="Mobile">Mobile</option>
+              <option value="Home">Home</option>
+              <option value="Work">Work</option>
+            </select>
+            <span class="tag tag--extra">extra</span>
+          </div>
+
+          <div class="field">
+            <label>Preferred Contact Method</label>
+            <div class="radio-group" role="radiogroup" aria-label="Preferred contact method">
+              <label><input type="radio" name="contact_method" value="Email" /> Email</label>
+              <label><input type="radio" name="contact_method" value="Phone" /> Phone</label>
+              <label><input type="radio" name="contact_method" value="Either" /> Either</label>
+            </div>
+            <span class="tag tag--extra">extra</span>
+          </div>
+        </section>
+
+        <!-- ── Location ─────────────────────────────────────────────── -->
+        <section aria-labelledby="section-location">
+          <h2 id="section-location">Location</h2>
+          <p class="section-note">Where you are based</p>
+
+          <div class="field">
+            <label for="country">Country</label>
+            <select id="country" name="country">
+              <option value="">Select country</option>
+              <option value="India">India</option>
+              <option value="United States">United States</option>
+              <option value="United Kingdom">United Kingdom</option>
+              <option value="Canada">Canada</option>
+              <option value="Germany">Germany</option>
+            </select>
+            <span class="tag tag--extra">extra</span>
+          </div>
+
+          <div class="field">
+            <label for="current-location">Current City / Location</label>
+            <input type="text" id="current-location" name="current_location" />
+            <span class="tag tag--extra">extra</span>
+          </div>
+        </section>
+
+        <!-- ── Professional ─────────────────────────────────────────── -->
+        <section aria-labelledby="section-professional">
+          <h2 id="section-professional">Professional Background</h2>
+          <p class="section-note">Work history and experience</p>
+
+          <div class="field">
+            <label for="current-company">Current Company</label>
+            <input type="text" id="current-company" name="current_company" />
+            <span class="tag tag--extra">extra</span>
+          </div>
+
+          <div class="field">
+            <label for="job-title">Current Job Title</label>
+            <input type="text" id="job-title" name="job_title" />
+            <span class="tag tag--extra">extra</span>
+          </div>
+
+          <div class="field">
+            <label for="experience">Years of Experience</label>
+            <select id="experience" name="experience">
+              <option value="">Select experience</option>
+              <option value="0">0 years</option>
+              <option value="1">1 year</option>
+              <option value="2">2 years</option>
+              <option value="3">3 years</option>
+              <option value="4">4 years</option>
+              <option value="5">5 years</option>
+              <option value="6">6+ years</option>
+            </select>
+            <span class="tag tag--config">config</span>
+          </div>
+
+          <div class="field">
+            <label for="experience-number">Total Experience (in years)</label>
+            <input
+              type="number"
+              id="experience-number"
+              name="experience_years"
+              min="0"
+              max="50"
+              step="1"
+            />
+            <span class="tag tag--config">config</span>
+            <p class="hint">Alternate number input for experience matching.</p>
+          </div>
+
+          <div class="field">
+            <label>Primary Skills</label>
+            <div class="checkbox-group" role="group" aria-label="Primary skills">
+              <label><input type="checkbox" name="skills" value="JavaScript" /> JavaScript</label>
+              <label><input type="checkbox" name="skills" value="TypeScript" /> TypeScript</label>
+              <label><input type="checkbox" name="skills" value="React" /> React</label>
+              <label><input type="checkbox" name="skills" value="Node.js" /> Node.js</label>
+              <label><input type="checkbox" name="skills" value="Python" /> Python</label>
+            </div>
+            <span class="tag tag--extra">extra</span>
+          </div>
+        </section>
+
+        <!-- ── Compensation ───────────────────────────────────────────── -->
+        <section aria-labelledby="section-compensation">
+          <h2 id="section-compensation">Compensation &amp; Availability</h2>
+          <p class="section-note">Salary variants (LPA, monthly, annual) and notice period</p>
+
+          <div class="field">
+            <label for="current-ctc-lpa">Current CTC (in LPA)</label>
+            <input type="number" id="current-ctc-lpa" name="current_ctc_lpa" min="0" step="0.1" />
+            <span class="tag tag--config">config</span>
+          </div>
+
+          <div class="field">
+            <label for="current-salary-monthly">Current Salary (per month)</label>
+            <input
+              type="number"
+              id="current-salary-monthly"
+              name="current_salary_monthly"
+              min="0"
+            />
+            <span class="tag tag--config">config</span>
+          </div>
+
+          <div class="field">
+            <label for="current-compensation-annual">Current Annual Compensation (per annum)</label>
+            <input
+              type="number"
+              id="current-compensation-annual"
+              name="current_compensation_annual"
+              min="0"
+            />
+            <span class="tag tag--config">config</span>
+          </div>
+
+          <div class="field">
+            <label for="expected-ctc-lpa">Expected CTC (in LPA)</label>
+            <input type="number" id="expected-ctc-lpa" name="expected_ctc_lpa" min="0" step="0.1" />
+            <span class="tag tag--config">config</span>
+          </div>
+
+          <div class="field">
+            <label for="expected-salary-monthly">Expected Salary (per month)</label>
+            <input
+              type="number"
+              id="expected-salary-monthly"
+              name="expected_salary_monthly"
+              min="0"
+            />
+            <span class="tag tag--config">config</span>
+          </div>
+
+          <div class="field">
+            <label for="expected-package-annual">Expected Annual Package (per annum)</label>
+            <input
+              type="number"
+              id="expected-package-annual"
+              name="expected_package_annual"
+              min="0"
+            />
+            <span class="tag tag--config">config</span>
+          </div>
+
+          <div class="field">
+            <label for="notice-period">Notice Period (days)</label>
+            <input type="number" id="notice-period" name="notice_period" min="0" />
+            <span class="tag tag--config">config</span>
+          </div>
+
+          <div class="field">
+            <label for="notice-period-select">When can you join?</label>
+            <select id="notice-period-select" name="joining_time">
+              <option value="">Select availability</option>
+              <option value="Immediate">Immediate</option>
+              <option value="15">15 days</option>
+              <option value="30">30 days</option>
+              <option value="60">60 days</option>
+              <option value="90">90 days</option>
+            </select>
+            <span class="tag tag--config">config</span>
+          </div>
+
+          <div class="field">
+            <label for="date-available">Earliest Start Date</label>
+            <input type="text" id="date-available" name="date_available" placeholder="DD/MM/YYYY" />
+            <span class="tag tag--extra">extra</span>
+          </div>
+        </section>
+
+        <!-- ── Links ────────────────────────────────────────────────── -->
+        <section aria-labelledby="section-links">
+          <h2 id="section-links">Links &amp; Portfolio</h2>
+          <p class="section-note">Online profiles</p>
+
+          <div class="field">
+            <label for="linkedin">LinkedIn Profile URL</label>
+            <input type="url" id="linkedin" name="linkedin" placeholder="https://linkedin.com/in/..." />
+            <span class="tag tag--config">config</span>
+          </div>
+
+          <div class="field">
+            <label for="github">GitHub Profile URL</label>
+            <input type="url" id="github" name="github" placeholder="https://github.com/..." />
+            <span class="tag tag--extra">extra</span>
+          </div>
+
+          <div class="field">
+            <label for="portfolio">Portfolio / Personal Website</label>
+            <input type="url" id="portfolio" name="portfolio" placeholder="https://..." />
+            <span class="tag tag--extra">extra</span>
+          </div>
+        </section>
+
+        <!-- ── Preferences & Compliance ─────────────────────────────── -->
+        <section aria-labelledby="section-compliance">
+          <h2 id="section-compliance">Work Preferences &amp; Compliance</h2>
+          <p class="section-note">Authorization, relocation, and work mode</p>
+
+          <div class="field">
+            <label>Are you legally authorized to work in this country?</label>
+            <div class="radio-group" role="radiogroup" aria-label="Work authorization">
+              <label><input type="radio" name="work_auth" value="Yes" /> Yes</label>
+              <label><input type="radio" name="work_auth" value="No" /> No</label>
+            </div>
+            <span class="tag tag--extra">extra</span>
+          </div>
+
+          <div class="field">
+            <label>Do you require visa sponsorship?</label>
+            <div class="radio-group" role="radiogroup" aria-label="Visa sponsorship">
+              <label><input type="radio" name="sponsorship" value="Yes" /> Yes</label>
+              <label><input type="radio" name="sponsorship" value="No" /> No</label>
+            </div>
+            <span class="tag tag--extra">extra</span>
+          </div>
+
+          <div class="field">
+            <label>Are you willing to relocate?</label>
+            <div class="radio-group" role="radiogroup" aria-label="Relocation">
+              <label><input type="radio" name="relocate" value="Yes" /> Yes</label>
+              <label><input type="radio" name="relocate" value="No" /> No</label>
+            </div>
+            <span class="tag tag--extra">extra</span>
+          </div>
+
+          <div class="field">
+            <label>Preferred Work Mode</label>
+            <div class="radio-group" role="radiogroup" aria-label="Work mode">
+              <label><input type="radio" name="work_mode" value="Remote" /> Remote</label>
+              <label><input type="radio" name="work_mode" value="Hybrid" /> Hybrid</label>
+              <label><input type="radio" name="work_mode" value="On-site" /> On-site</label>
+            </div>
+            <span class="tag tag--extra">extra</span>
+          </div>
+
+          <div class="field">
+            <label for="referral-source">How did you hear about this role?</label>
+            <select id="referral-source" name="referral_source">
+              <option value="">Select source</option>
+              <option value="LinkedIn">LinkedIn</option>
+              <option value="Company Website">Company Website</option>
+              <option value="Referral">Referral</option>
+              <option value="Job Board">Job Board</option>
+              <option value="Other">Other</option>
+            </select>
+            <span class="tag tag--extra">extra</span>
+          </div>
+        </section>
+
+        <!-- ── Additional ───────────────────────────────────────────── -->
+        <section aria-labelledby="section-additional">
+          <h2 id="section-additional">Additional Information</h2>
+          <p class="section-note">Free text and consent</p>
+
+          <div class="field">
+            <label for="cover-letter">Cover Letter / Why do you want this role?</label>
+            <textarea id="cover-letter" name="cover_letter" rows="5"></textarea>
+            <span class="tag tag--extra">extra</span>
+          </div>
+
+          <div class="field">
+            <label for="references">Professional References</label>
+            <textarea
+              id="references"
+              name="references"
+              rows="3"
+              placeholder="Name, relationship, contact"
+            ></textarea>
+            <span class="tag tag--extra">extra</span>
+          </div>
+
+          <div class="field">
+            <label>
+              <input type="checkbox" name="terms" value="accepted" />
+              I confirm that the information provided is accurate
+            </label>
+            <span class="tag tag--extra">extra</span>
+          </div>
+        </section>
+
+        <div class="actions">
+          <button type="submit">Submit Application</button>
+          <button type="reset">Clear Form</button>
+        </div>
+      </form>
+    </div>
+  </body>
+</html>
