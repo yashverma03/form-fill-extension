@@ -8,6 +8,7 @@ type PopupState =
   | { status: 'success'; result: PatchResult }
   | { status: 'error'; message: string };
 
+/** Extension popup: auto-runs filler on mount and shows results or errors. */
 export function Popup() {
   const [state, setState] = useState<PopupState>({ status: 'loading' });
 

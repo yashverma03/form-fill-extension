@@ -2,6 +2,8 @@
 
 Auto-fills job application forms using a config-driven matching engine.
 
+> **AI / project overview:** see [AGENTS.md](./AGENTS.md) for architecture, file map, and conventions.
+
 ## Setup
 
 ```bash

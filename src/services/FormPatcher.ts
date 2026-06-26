@@ -4,7 +4,9 @@ import { InputTypeEnum } from '../enums/InputTypeEnum';
 import { ClosestOptionMatcher } from '../utils/findClosestOption';
 import { TextNormalizer } from '../utils/normalizeText';
 
+/** Applies resolved answers to DOM form controls, skipping already-filled fields. */
 export class FormPatcher {
+  /** Runs patches for each resolved item and tallies patched, skipped, and errored counts. */
   patch(resolved: ResolvedPatch[]): PatchResult {
     const result: PatchResult = {
       patched: 0,
@@ -41,6 +43,7 @@ export class FormPatcher {
     return result;
   }
 
+  /** Dispatches to the input-type-specific patcher. */
   private applyPatch(item: ResolvedPatch): boolean {
     const { input, answer } = item;
     if (answer === null) {
@@ -59,6 +62,7 @@ export class FormPatcher {
     }
   }
 
+  /** Sets value on empty text inputs and textareas. */
   private patchTextInput(element: HTMLElement, answer: string): boolean {
     if (
       !(
@@ -78,6 +82,7 @@ export class FormPatcher {
     return true;
   }
 
+  /** Selects the closest matching option when nothing is selected yet (index 0). */
   private patchSelect(element: HTMLElement, answer: string): boolean {
     if (!(element instanceof HTMLSelectElement)) {
       return false;
@@ -101,6 +106,7 @@ export class FormPatcher {
     return true;
   }
 
+  /** Checks the closest-matching radio in the group when none is selected. */
   private patchRadio(element: HTMLElement, answer: string): boolean {
     if (!(element instanceof HTMLInputElement) || element.type !== 'radio') {
       return false;
@@ -135,6 +141,7 @@ export class FormPatcher {
     return true;
   }
 
+  /** Checks the box when the answer is truthy (yes/true/1/on) and it is unchecked. */
   private patchCheckbox(element: HTMLElement, answer: string): boolean {
     if (!(element instanceof HTMLInputElement) || element.type !== 'checkbox') {
       return false;
@@ -156,6 +163,7 @@ export class FormPatcher {
     return true;
   }
 
+  /** Resolves display text from an associated label, falling back to value. */
   private getRadioLabel(radio: HTMLInputElement): string {
     const id = radio.id;
     if (id) {
@@ -169,6 +177,7 @@ export class FormPatcher {
     return radio.value;
   }
 
+  /** Fires input/change/blur so frameworks detect programmatic updates. */
   private dispatchInputEvents(element: HTMLElement): void {
     element.dispatchEvent(new Event('input', { bubbles: true }));
     element.dispatchEvent(new Event('change', { bubbles: true }));

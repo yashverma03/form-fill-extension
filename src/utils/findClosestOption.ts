@@ -1,6 +1,8 @@
 import { TextNormalizer } from './normalizeText';
 
+/** Picks the best-matching option from a list for select/radio answers. */
 export class ClosestOptionMatcher {
+  /** Returns option index: exact match first, then longest substring overlap. */
   static findIndex(options: string[], answer: string): number {
     const normalizedAnswer = TextNormalizer.normalizeText(answer);
     let bestIndex = -1;
@@ -29,6 +31,7 @@ export class ClosestOptionMatcher {
     return bestIndex;
   }
 
+  /** Returns the option text at the best-matching index, or null. */
   static find(options: string[], answer: string): string | null {
     const index = ClosestOptionMatcher.findIndex(options, answer);
     if (index < 0) {

@@ -6,6 +6,7 @@ import { Logger } from '../services/Logger';
 import type { ContentMessage } from '../types/ContentMessage';
 import type { FillerResultMessage } from '../types/FillerResultMessage';
 
+/** Orchestrates extract → resolve → log → patch on the current page. */
 async function runFiller(): Promise<FillerResultMessage> {
   const logger = new Logger();
   const extractor = new FormExtractor();
@@ -29,6 +30,7 @@ async function runFiller(): Promise<FillerResultMessage> {
   return { type: 'FILLER_RESULT', result };
 }
 
+/** Handles RUN_FILLER from the popup; responds asynchronously with FILLER_RESULT. */
 chrome.runtime.onMessage.addListener(
   (message: ContentMessage, _sender, sendResponse) => {
     if (message.type !== 'RUN_FILLER') {

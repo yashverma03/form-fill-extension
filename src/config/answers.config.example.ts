@@ -4,6 +4,8 @@ import type { AnswerConfigEntry } from '../interfaces/AnswerConfigEntry';
  * Example answer config — copy to answers.config.ts and fill in your data:
  *
  *   cp src/config/answers.config.example.ts src/config/answers.config.ts
+ *
+ * First matching entry wins; order entries by specificity.
  */
 export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
   // ── Identity (high priority, specific first) ──────────────────────────

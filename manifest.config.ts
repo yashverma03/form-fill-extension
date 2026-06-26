@@ -1,5 +1,6 @@
 import { defineManifest } from '@crxjs/vite-plugin';
 
+/** Chrome extension manifest (MV3): popup, content script on all URLs, activeTab permission. */
 export default defineManifest({
   manifest_version: 3,
   name: 'Form Filler',

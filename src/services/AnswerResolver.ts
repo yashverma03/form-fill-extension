@@ -6,13 +6,16 @@ import { InputTypeEnum } from '../enums/InputTypeEnum';
 import { ClosestOptionMatcher } from '../utils/findClosestOption';
 import { QuestionMatcher } from '../utils/matchQuestion';
 
+/** Maps extracted form fields to config answers via fuzzy question matching. */
 export class AnswerResolver {
   constructor(private readonly config: AnswerConfigEntry[]) {}
 
+  /** Resolves an answer (or skip reason) for every extracted input. */
   resolve(inputs: ExtractedInput[]): ResolvedPatch[] {
     return inputs.map((input) => this.resolveInput(input));
   }
 
+  /** Builds the log payload for a field (label text and options when present). */
   getLogRequest(input: ExtractedInput): LogRequest {
     const request: LogRequest = { text: input.labelText };
     if (input.options.length > 0) {
@@ -21,6 +24,7 @@ export class AnswerResolver {
     return request;
   }
 
+  /** Skips filled fields, then matches config and resolves the final answer. */
   private resolveInput(input: ExtractedInput): ResolvedPatch {
     if (this.isAlreadyFilled(input)) {
       return {
@@ -52,6 +56,7 @@ export class AnswerResolver {
     };
   }
 
+  /** Returns the first config entry whose patterns meet the threshold (order matters). */
   private findFirstMatch(
     question: string,
   ): { entry: AnswerConfigEntry; index: number } | null {
@@ -64,6 +69,7 @@ export class AnswerResolver {
     return null;
   }
 
+  /** Applies sub-patterns for overrides, then snaps the answer to the closest option. */
   private resolveAnswer(
     input: ExtractedInput,
     entry: AnswerConfigEntry,
@@ -93,6 +99,7 @@ export class AnswerResolver {
     return ClosestOptionMatcher.find(input.options, answer) ?? answer;
   }
 
+  /** Detects existing user input per control type (select index, checked state, value). */
   private isAlreadyFilled(input: ExtractedInput): boolean {
     const { element, inputType } = input;
 

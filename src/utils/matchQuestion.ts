@@ -1,7 +1,9 @@
 import type { Pattern } from '../interfaces/Pattern';
 import { TextNormalizer } from './normalizeText';
 
+/** Scores how well a form question matches config patterns. */
 export class QuestionMatcher {
+  /** True when any pattern scores at or above `threshold`. */
   static matches(
     question: string,
     threshold: number,
@@ -16,6 +18,7 @@ export class QuestionMatcher {
     return false;
   }
 
+  /** Longest common substring length via dynamic programming. */
   private static longestCommonSubstringLength(a: string, b: string): number {
     if (a.length === 0 || b.length === 0) {
       return 0;
@@ -42,6 +45,7 @@ export class QuestionMatcher {
     return maxLength;
   }
 
+  /** 100 if substring match, else LCS length as % of pattern length. */
   private static stringPatternScore(question: string, pattern: string): number {
     const normalizedQuestion = TextNormalizer.normalizeText(question);
     const normalizedPattern = TextNormalizer.normalizeText(pattern);
@@ -61,6 +65,7 @@ export class QuestionMatcher {
     return (matchingChars / normalizedPattern.length) * 100;
   }
 
+  /** RegExp patterns are all-or-nothing; strings use fuzzy substring scoring. */
   private static patternScore(question: string, pattern: Pattern): number {
     if (pattern instanceof RegExp) {
       return pattern.test(TextNormalizer.normalizeText(question)) ? 100 : 0;

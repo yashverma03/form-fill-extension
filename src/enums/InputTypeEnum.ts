@@ -1,3 +1,4 @@
+/** Normalized HTML input kinds used by extraction, resolution, and patching. */
 export enum InputTypeEnum {
   Text = 'text',
   Textarea = 'textarea',

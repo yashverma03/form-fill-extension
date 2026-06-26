@@ -2,6 +2,7 @@ import type { ExtractedInput } from '../interfaces/ExtractedInput';
 import { InputTypeEnum } from '../enums/InputTypeEnum';
 import { TextNormalizer } from '../utils/normalizeText';
 
+/** Input types excluded from extraction (non-fillable or action controls). */
 const SKIP_INPUT_TYPES = new Set([
   'hidden',
   'submit',
@@ -11,7 +12,9 @@ const SKIP_INPUT_TYPES = new Set([
   'file',
 ]);
 
+/** Walks the DOM and builds structured metadata for each visible, fillable control. */
 export class FormExtractor {
+  /** Collects unique eligible inputs under `root`, defaulting to the document. */
   extract(root: Document | HTMLElement = document): ExtractedInput[] {
     const elements = root.querySelectorAll<HTMLElement>(
       'input, select, textarea',
@@ -31,6 +34,7 @@ export class FormExtractor {
     return results;
   }
 
+  /** Filters disabled, hidden, and non-interactive elements. */
   private isEligible(element: HTMLElement): boolean {
     if (
       element.hasAttribute('disabled') ||
@@ -59,6 +63,7 @@ export class FormExtractor {
     );
   }
 
+  /** Assembles label, type, options, value, and surrounding context for one element. */
   private toExtractedInput(element: HTMLElement): ExtractedInput {
     const labelText = this.resolveLabelText(element);
     const contextText = this.resolveContextText(element);
@@ -76,6 +81,7 @@ export class FormExtractor {
     };
   }
 
+  /** Resolves question text via label, aria, placeholder, siblings, or name. */
   private resolveLabelText(element: HTMLElement): string {
     const id = element.getAttribute('id');
 
@@ -127,6 +133,7 @@ export class FormExtractor {
     return '';
   }
 
+  /** Walks previous siblings and parent text when no explicit label exists. */
   private findClosestText(element: HTMLElement): string {
     let current: HTMLElement | null =
       element.previousElementSibling as HTMLElement | null;
@@ -154,6 +161,7 @@ export class FormExtractor {
     return '';
   }
 
+  /** Gathers heading and container text for disambiguating similar labels. */
   private resolveContextText(element: HTMLElement): string {
     const container =
       element.closest('fieldset, section, form, div, li, tr') ??
@@ -173,6 +181,7 @@ export class FormExtractor {
     );
   }
 
+  /** Maps HTML element to the extension's input-type enum. */
   private resolveInputType(element: HTMLElement): InputTypeEnum {
     if (element instanceof HTMLSelectElement) {
       return InputTypeEnum.Select;
@@ -204,6 +213,7 @@ export class FormExtractor {
     return InputTypeEnum.Text;
   }
 
+  /** Lists option labels for selects and radio/checkbox groups. */
   private resolveOptions(element: HTMLElement): string[] {
     if (element instanceof HTMLSelectElement) {
       return Array.from(element.options).map((option) =>
@@ -241,6 +251,7 @@ export class FormExtractor {
     return [];
   }
 
+  /** Reads the current displayed or stored value for the control. */
   private resolveCurrentValue(element: HTMLElement): string {
     if (element instanceof HTMLSelectElement) {
       return element.options[element.selectedIndex]?.text ?? '';
