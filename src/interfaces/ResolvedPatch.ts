@@ -5,6 +5,5 @@ export interface ResolvedPatch {
   input: ExtractedInput;
   answer: string | null;
   configIndex: number | null;
-  matchScore: number;
   skippedReason?: SkippedReason;
 }

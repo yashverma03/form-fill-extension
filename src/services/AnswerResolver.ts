@@ -17,31 +17,28 @@ export class AnswerResolver {
         input,
         answer: null,
         configIndex: null,
-        matchScore: 0,
         skippedReason: 'already_filled',
       };
     }
 
     const question = this.buildQuestionText(input);
-    const winner = this.findBestMatch(question);
+    const match = this.findFirstMatch(question);
 
-    if (!winner) {
+    if (!match) {
       return {
         input,
         answer: null,
         configIndex: null,
-        matchScore: 0,
         skippedReason: 'no_match',
       };
     }
 
-    const answer = this.resolveAnswer(winner.entry, question);
+    const answer = this.resolveAnswer(match.entry, question);
 
     return {
       input,
       answer,
-      configIndex: winner.index,
-      matchScore: winner.score,
+      configIndex: match.index,
     };
   }
 
@@ -51,31 +48,16 @@ export class AnswerResolver {
       .join(' ');
   }
 
-  private findBestMatch(
+  private findFirstMatch(
     question: string,
-  ): { entry: AnswerConfigEntry; index: number; score: number } | null {
-    let best: {
-      entry: AnswerConfigEntry;
-      index: number;
-      score: number;
-    } | null = null;
-
-    this.config.forEach((entry, index) => {
-      const score = QuestionMatcher.matchQuestion(
-        question,
-        entry.threshold,
-        entry.patterns,
-      );
-      if (score === 0) {
-        return;
+  ): { entry: AnswerConfigEntry; index: number } | null {
+    for (const [index, entry] of this.config.entries()) {
+      if (QuestionMatcher.matches(question, entry.threshold, entry.patterns)) {
+        return { entry, index };
       }
+    }
 
-      if (!best || score > best.score) {
-        best = { entry, index, score };
-      }
-    });
-
-    return best;
+    return null;
   }
 
   private resolveAnswer(
@@ -86,22 +68,19 @@ export class AnswerResolver {
       return entry.answer;
     }
 
-    let bestSubScore = 0;
-    let bestAnswer: string | null = null;
-
     for (const subPattern of entry.subPatterns) {
-      const score = QuestionMatcher.matchQuestion(
-        question,
-        subPattern.threshold,
-        subPattern.patterns,
-      );
-      if (score > bestSubScore) {
-        bestSubScore = score;
-        bestAnswer = subPattern.answer;
+      if (
+        QuestionMatcher.matches(
+          question,
+          subPattern.threshold,
+          subPattern.patterns,
+        )
+      ) {
+        return subPattern.answer;
       }
     }
 
-    return bestAnswer ?? entry.answer;
+    return entry.answer;
   }
 
   private isAlreadyFilled(input: ExtractedInput): boolean {
@@ -148,20 +127,5 @@ export class AnswerResolver {
 
   getQuestionText(input: ExtractedInput): string {
     return this.buildQuestionText(input);
-  }
-
-  getBestMatchScore(question: string): number {
-    let bestScore = 0;
-
-    for (const entry of this.config) {
-      const score = QuestionMatcher.matchQuestion(
-        question,
-        entry.threshold,
-        entry.patterns,
-      );
-      bestScore = Math.max(bestScore, score);
-    }
-
-    return bestScore;
   }
 }

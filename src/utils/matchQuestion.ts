@@ -2,21 +2,18 @@ import type { Pattern } from '../interfaces/Pattern';
 import { TextNormalizer } from './normalizeText';
 
 export class QuestionMatcher {
-  static matchQuestion(
+  static matches(
     question: string,
     threshold: number,
     patterns: Pattern[],
-  ): number {
-    let bestScore = 0;
-
+  ): boolean {
     for (const pattern of patterns) {
-      bestScore = Math.max(
-        bestScore,
-        QuestionMatcher.scorePattern(question, pattern),
-      );
+      if (QuestionMatcher.patternScore(question, pattern) >= threshold) {
+        return true;
+      }
     }
 
-    return bestScore >= threshold ? bestScore : 0;
+    return false;
   }
 
   private static longestCommonSubstringLength(a: string, b: string): number {
@@ -45,7 +42,7 @@ export class QuestionMatcher {
     return maxLength;
   }
 
-  private static scoreStringPattern(question: string, pattern: string): number {
+  private static stringPatternScore(question: string, pattern: string): number {
     const normalizedQuestion = TextNormalizer.normalizeText(question);
     const normalizedPattern = TextNormalizer.normalizeText(pattern);
 
@@ -64,11 +61,11 @@ export class QuestionMatcher {
     return (matchingChars / normalizedPattern.length) * 100;
   }
 
-  private static scorePattern(question: string, pattern: Pattern): number {
+  private static patternScore(question: string, pattern: Pattern): number {
     if (pattern instanceof RegExp) {
       return pattern.test(TextNormalizer.normalizeText(question)) ? 100 : 0;
     }
 
-    return QuestionMatcher.scoreStringPattern(question, pattern);
+    return QuestionMatcher.stringPatternScore(question, pattern);
   }
 }
