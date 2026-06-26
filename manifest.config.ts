@@ -9,7 +9,9 @@ export default defineManifest({
   action: {
     default_popup: 'src/popup/index.html',
     default_icon: {
+      '16': 'icons/icon16.png',
       '48': 'icons/icon48.png',
+      '128': 'icons/icon128.png',
     },
   },
   content_scripts: [
