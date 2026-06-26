@@ -69,6 +69,7 @@ export const ANSWERS_DATA: Record<QuestionIdEnum, string> = {
   [QuestionIdEnum.Certification]: 'AWS',
   [QuestionIdEnum.ReasonForLeaving]: 'Seeking growth.',
   [QuestionIdEnum.WhyApply]: 'Strong fit.',
+  [QuestionIdEnum.WhyHireYou]: 'Ownership and reliability.',
   [QuestionIdEnum.ConflictResolution]: 'Discussed and aligned.',
   [QuestionIdEnum.Achievement]: 'Shipped key feature.',
   [QuestionIdEnum.FiveYearGoals]: 'Senior engineer.',

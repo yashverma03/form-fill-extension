@@ -85,7 +85,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'present employer',
       'company you work',
     ],
-    threshold: 45,
+    threshold: 30,
     questionId: QuestionIdEnum.CurrentCompany,
   },
   {
@@ -96,7 +96,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'where are you located',
       'city you are based',
     ],
-    threshold: 40,
+    threshold: 30,
     questionId: QuestionIdEnum.CurrentLocation,
   },
   {
@@ -126,7 +126,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
     subPatterns: [
       {
         patterns: ['lpa', 'lakhs', 'lakh'],
-        threshold: 40,
+        threshold: 10,
         questionId: QuestionIdEnum.CurrentCtcLpa,
       },
     ],
@@ -146,7 +146,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
     subPatterns: [
       {
         patterns: ['lpa', 'lakhs', 'lakh'],
-        threshold: 40,
+        threshold: 10,
         questionId: QuestionIdEnum.ExpectedCtcLpa,
       },
     ],
@@ -179,11 +179,11 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       /competing.*(ctc|salary|compensation|offer)/,
       /other.*offer/,
     ],
-    threshold: 45,
+    threshold: 40,
     subPatterns: [
       {
         patterns: ['lpa', 'lakhs', 'lakh'],
-        threshold: 40,
+        threshold: 10,
         questionId: QuestionIdEnum.CompetingOfferLpa,
       },
     ],
@@ -355,7 +355,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'eligible to work',
       'right to work',
     ],
-    threshold: 10,
+    threshold: 5,
     questionId: QuestionIdEnum.LegallyAuthorizedToWork,
   },
   {
@@ -366,12 +366,12 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'immigration sponsorship',
       'work visa',
     ],
-    threshold: 10,
+    threshold: 5,
     questionId: QuestionIdEnum.VisaSponsorshipRequired,
   },
   {
     patterns: ['work permit', 'permit expiry', 'visa expiry', 'visa status'],
-    threshold: 10,
+    threshold: 5,
     questionId: QuestionIdEnum.VisaStatus,
   },
   {
@@ -380,7 +380,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'financial interest',
       'outside business interest',
     ],
-    threshold: 10,
+    threshold: 5,
     questionId: QuestionIdEnum.ConflictOfInterest,
   },
   {
@@ -390,7 +390,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'know anyone at',
       'employee referral relation',
     ],
-    threshold: 10,
+    threshold: 5,
     questionId: QuestionIdEnum.RelativeAtCompany,
   },
   {
@@ -400,7 +400,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'restrictive covenant',
       'bound by agreement',
     ],
-    threshold: 10,
+    threshold: 5,
     questionId: QuestionIdEnum.NonCompeteAgreement,
   },
   {
@@ -411,12 +411,12 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'convicted',
       'criminal history',
     ],
-    threshold: 10,
+    threshold: 5,
     questionId: QuestionIdEnum.CriminalRecord,
   },
   {
     patterns: ['security clearance', 'government clearance'],
-    threshold: 10,
+    threshold: 5,
     questionId: QuestionIdEnum.SecurityClearance,
   },
   {
@@ -430,7 +430,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'declaration',
       'accuracy of information',
     ],
-    threshold: 10,
+    threshold: 5,
     questionId: QuestionIdEnum.TermsConsent,
   },
 
@@ -549,6 +549,18 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
     patterns: [
       'why should we hire',
       'why hire you',
+      'asset to this organisation',
+      'asset to this organization',
+      'asset to the organisation',
+      'asset to the organization',
+      'different from other candidates',
+      'makes you different',
+    ],
+    threshold: 10,
+    questionId: QuestionIdEnum.WhyHireYou,
+  },
+  {
+    patterns: [
       'why are you interested',
       'interested in this job',
       'interested in this role',
