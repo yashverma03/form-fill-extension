@@ -10,7 +10,7 @@
 
 A **Chrome Extension (Manifest V3)** that auto-fills job application and similar web forms. The user clicks the extension popup on any page; a content script scans the DOM, matches each field label to a personal answer config, and writes values into empty fields only.
 
-**Core idea:** config-driven fuzzy matching — no hard-coded form layouts. Answers live in a user-specific config file; the engine extracts labels, scores them against patterns, and patches the DOM.
+**Core idea:** config-driven fuzzy matching — no hard-coded form layouts. Answers live in a user-specific data file; the engine extracts labels, scores them against patterns, and patches the DOM.
 
 **Primary use case:** speeding up repetitive job-application forms (name, email, work authorization, etc.) across different ATS sites.
 
@@ -21,9 +21,10 @@ A **Chrome Extension (Manifest V3)** that auto-fills job application and similar
 | Layer | Choice |
 |-------|--------|
 | Language | TypeScript |
-| Extension build | Vite + `@crxjs/vite-plugin` |
+| Extension build | Vite 7 + `@crxjs/vite-plugin` |
 | Popup UI | React 19 |
 | Styling | Tailwind CSS (popup), CSS modules (popup component) |
+| Fuzzy matching | `fuzzball` (`token_set_ratio`, `partial_ratio`) |
 | Extension API | Chrome MV3 (`activeTab`, content scripts, `chrome.tabs.sendMessage`) |
 | Package manager | npm |
 
@@ -44,27 +45,34 @@ A **Chrome Extension (Manifest V3)** that auto-fills job application and similar
                     │                        │                        │
                     └────────────────────────┴────────────────────────┘
                                              │
-                                    ANSWERS_CONFIG
-                                    src/config/
+                              ANSWERS_CONFIG + ANSWERS_DATA
+                              src/config/    src/data/
 ```
 
 ### Fill pipeline (content script)
 
-1. **Extract** — `FormExtractor` walks the page for visible, enabled `input`, `select`, and `textarea` elements. Builds `ExtractedInput` objects (label text, type, options, current value, context).
-2. **Resolve** — `AnswerResolver` matches each field’s label against `ANSWERS_CONFIG` using fuzzy pattern scoring. Skips already-filled fields. Produces `ResolvedPatch` objects (answer or skip reason).
+1. **Extract** — `FormExtractor` walks the page for visible, enabled `input`, `select`, and `textarea` elements (including open shadow roots). Builds `ExtractedInput` objects (label text, type, options, current value, context).
+2. **Resolve** — `AnswerResolver` matches each field’s label (+ section context) against `ANSWERS_CONFIG` using fuzzy pattern scoring. Skips already-filled fields and fields with no configured answer. Produces `ResolvedPatch` objects (answer or skip reason).
 3. **Log** — `Logger` prints JSON `{ request, response }` per field to the console (for tuning config on unmatched questions).
-4. **Patch** — `FormPatcher` applies answers to empty fields only. Dispatches `input`/`change`/`blur` events so React/Vue forms detect changes.
+4. **Patch** — `FormPatcher` applies answers to empty fields only. Uses native value setters and dispatches `input`/`change`/`blur` events so React/Vue forms detect changes.
 
 ### Matching model
 
-- Config entries have **patterns** (strings or RegExp), a **threshold** (0–100), and an **answer**.
+- Config entries have **patterns** (strings or RegExp), a **threshold** (0–100), and a **`questionId`** that looks up `ANSWERS_DATA`.
 - **First matching entry wins** — order in config matters; put specific patterns before generic ones.
-- **Sub-patterns** on an entry can override the default answer for narrower label variants.
-- For selects/radios, answers are snapped to the **closest option label** via substring matching.
+- **Sub-patterns** on an entry can override the default `questionId` for narrower label variants (e.g. LPA vs absolute CTC).
+- **String patterns:** substring match → score 100; else require all significant pattern words as **whole words** in the question, then score with fuzzball.
+- **RegExp patterns:** tested against normalized label text; score 100 or 0. Inline comments in `answers.config.ts` explain each regex.
+- For selects/radios, answers are snapped to the **closest option label** via `ClosestOptionMatcher` (exact match, yes/no boolean mapping, then substring overlap).
 
 ### Skip behavior
 
-Fields are skipped when already filled, when no config entry matches, or when patching fails safely. Patched/skipped/error counts are returned to the popup.
+Fields are skipped when:
+- **`already_filled`** — text has a value, select is non-empty, or radio/checkbox is checked
+- **`no_match`** — no config entry matched the label
+- **`no_answer`** — matched a question but `answers.data.ts` has no value (or empty string) for that `QuestionIdEnum`
+
+Patched/skipped/error counts are returned to the popup. Errors row is shown only when `errors.length > 0`.
 
 ---
 
@@ -77,7 +85,7 @@ form-fill-extension/
 ├── package.json
 ├── package-lock.json
 ├── manifest.config.ts           # Chrome extension manifest (MV3)
-├── vite.config.ts               # Vite + CRXJS build config
+├── vite.config.ts               # Vite + CRXJS build + dev-server HMR/CORS
 ├── tailwind.config.ts
 ├── postcss.config.js
 ├── tsconfig.json
@@ -87,9 +95,10 @@ form-fill-extension/
 ├── .prettierrc
 ├── .prettierignore
 │
-├── public/
-│   └── icons/
-│       └── icon48.png           # Extension icon
+├── icons/
+│   ├── icon16.png
+│   ├── icon48.png
+│   └── icon128.png              # Extension toolbar icons
 │
 ├── dist/                        # Build output — load as unpacked extension
 │
@@ -101,7 +110,7 @@ form-fill-extension/
 │   │   ├── index.html           # Popup shell
 │   │   ├── index.tsx            # React mount point
 │   │   ├── index.css            # Popup global styles (Tailwind)
-│   │   ├── Popup.tsx            # Popup UI (auto-runs filler on open)
+│   │   ├── Popup.tsx            # Popup UI (auto-runs filler; results table)
 │   │   └── Popup.module.css     # Popup component styles
 │   │
 │   ├── services/
@@ -111,8 +120,9 @@ form-fill-extension/
 │   │   └── Logger.ts            # Console logging for config tuning
 │   │
 │   ├── utils/
+│   │   ├── domForm.ts           # Shared DOM helpers (visibility, native setters, shadow DOM)
 │   │   ├── normalizeText.ts     # Lowercase, strip punctuation, collapse whitespace
-│   │   ├── matchQuestion.ts     # Fuzzy pattern scoring (LCS + RegExp)
+│   │   ├── matchQuestion.ts     # Fuzzy pattern scoring (fuzzball + RegExp)
 │   │   └── findClosestOption.ts # Best option index for select/radio answers
 │   │
 │   ├── interfaces/              # Shared data shapes (see section below)
@@ -150,7 +160,7 @@ Runs in the context of every web page (`<all_urls>`, `document_idle`). Listens f
 
 ### `src/popup/`
 
-Small React app shown when the user clicks the extension icon. On mount it messages the active tab’s content script and displays patched/skipped/error summary. No config editing in UI — config is file-based.
+Small React app shown when the user clicks the extension icon. On mount it messages the active tab’s content script and displays a minimal results table: **Patched**, **Skipped**, and **Errors** (only if errors > 0). No config editing in UI — config is file-based.
 
 ### `src/services/`
 
@@ -158,7 +168,7 @@ Business logic layer. Keep DOM side effects in `FormExtractor` / `FormPatcher`; 
 
 ### `src/utils/`
 
-Stateless helpers used by services. No Chrome APIs, no config imports.
+Stateless helpers used by services. `domForm.ts` is shared between extractor and patcher. No Chrome APIs, no config imports.
 
 ### `src/interfaces/`
 
@@ -170,11 +180,11 @@ Chrome extension message contracts between popup and content script.
 
 ### `src/enums/`
 
-Shared enumerations. `InputTypeEnum` is re-exported from `src/types/InputTypeEnum.ts` for convenient imports in interfaces.
+Shared enumerations. `QuestionIdEnum` is grouped by category (identity, contact, compliance, EEO, etc.) — keep in sync with `answers.config.ts` section comments. `InputTypeEnum` is re-exported from `src/types/InputTypeEnum.ts` for convenient imports in interfaces.
 
 ### `src/config/`
 
-Question pattern config — `answers.config.ts` with patterns, thresholds, and `QuestionIdEnum` references (committed).
+Question pattern config — `answers.config.ts` with patterns, thresholds, and `QuestionIdEnum` references (committed). RegExp patterns have inline comments explaining what they match.
 
 ### `src/data/`
 
@@ -188,8 +198,8 @@ Standalone HTML test page mimicking a job application. Open in browser during de
 
 ### Root config files
 
-- `manifest.config.ts` — extension name, permissions, content script registration, popup path.
-- `vite.config.ts` — bundles popup (React) and content script via CRXJS.
+- `manifest.config.ts` — extension name, permissions, content script registration, popup path, icons.
+- `vite.config.ts` — bundles popup (React) and content script via CRXJS; dev server on port 5173 with CORS for `chrome-extension://` and `legacy.skipWebSocketTokenCheck` for HMR with the extension service worker.
 
 ---
 
@@ -199,14 +209,14 @@ Standalone HTML test page mimicking a job application. Open in browser during de
 
 **File:** `src/services/FormExtractor.ts`
 
-Scans a DOM subtree (default: `document`) for fillable controls. Filters out hidden, disabled, and non-interactive inputs (hidden, submit, button, file, etc.).
+Scans a DOM subtree (default: full document via `queryFillableElements`, including shadow roots) for fillable controls. Filters out hidden, disabled, readonly, and non-interactive inputs (hidden, submit, button, file, etc.).
 
 For each element, resolves:
-- **labelText** — from `<label for>`, `aria-label`, `aria-labelledby`, placeholder, sibling text, or `name` attribute
+- **labelText** — field-container sibling `<label>`, `fieldset` legend, `role="radiogroup"` aria, table `<th>`, `<label for>`, `aria-label`, `aria-labelledby`, placeholder, sibling text, or `name` attribute. Radio groups use one representative per `name` (not per option label).
 - **inputType** — mapped to `InputTypeEnum`
-- **options** — option labels for `<select>` and radio/checkbox groups
+- **options** — option labels for `<select>` and radio/checkbox groups (form-scoped)
 - **currentValue** — existing value or selection
-- **contextText** — surrounding section/heading text for disambiguation
+- **contextText** — surrounding section heading/legend for disambiguation
 
 Returns `ExtractedInput[]`.
 
@@ -214,14 +224,16 @@ Returns `ExtractedInput[]`.
 
 **File:** `src/services/AnswerResolver.ts`
 
-Takes `ExtractedInput[]`, `AnswerConfigEntry[]` (from `ANSWERS_CONFIG`), and `Record<QuestionIdEnum, string>` (from `ANSWERS_DATA`). For each input:
+Takes `ExtractedInput[]`, `AnswerConfigEntry[]` (from `ANSWERS_CONFIG`), and `Partial<Record<QuestionIdEnum, string>>` (from `ANSWERS_DATA`). For each input:
 
-1. Skip if `isAlreadyFilled` (non-empty text, select index > 0, checked radio/checkbox)
-2. Find first config entry where `QuestionMatcher.matches(label, threshold, patterns)`
-3. Apply `subPatterns` overrides if any match
-4. Snap answer to closest option label when options exist
+1. Skip if `isAlreadyFilled` (non-empty text, `isSelectEmpty` false, checked radio/checkbox)
+2. Build question text from `labelText` + `contextText`
+3. Find first config entry where `QuestionMatcher.matches(question, threshold, patterns)`
+4. Apply `subPatterns` overrides if any match
+5. Look up answer by `questionId`; skip with `no_answer` if missing or empty
+6. Snap answer to closest option label when options exist
 
-Returns `ResolvedPatch[]` with `answer`, `configIndex`, or `skippedReason` (`already_filled` | `no_match` | `below_threshold`).
+Returns `ResolvedPatch[]` with `answer`, `configIndex`, or `skippedReason` (`already_filled` | `no_match` | `no_answer`).
 
 Also exposes `getLogRequest()` for structured console logging.
 
@@ -232,10 +244,10 @@ Also exposes `getLogRequest()` for structured console logging.
 Applies `ResolvedPatch[]` to the live DOM. **Never overwrites non-empty fields.**
 
 Per input type:
-- **Text / textarea / email / tel / etc.** — set `value` if empty
-- **Select** — pick closest option if `selectedIndex` is 0 (placeholder)
-- **Radio** — check closest label in group if none selected
-- **Checkbox** — check if answer is truthy (`yes`, `true`, `1`, `on`)
+- **Text / textarea / email / tel / etc.** — `setNativeInputValue` if empty
+- **Select** — pick closest option via `isSelectEmpty` + `setNativeSelectValue`
+- **Radio** — check closest label in form-scoped group if none selected; dedupes by group key
+- **Checkbox** — check if answer is truthy (`yes`, `true`, `1`, `on`) or label matches
 
 Fires synthetic events after each change so SPA frameworks react.
 
@@ -253,9 +265,10 @@ Logs `{ request: LogRequest, response: string | null }` as JSON to `console.log`
 
 | File | Role |
 |------|------|
+| `domForm.ts` | `getFormRoot`, `isInteractable`, `isVisible`, `isSelectEmpty`, native value setters, `dispatchInputEvents`, `queryFillableElements` (shadow DOM) |
 | `normalizeText.ts` | Canonical string normalization for all comparisons |
-| `matchQuestion.ts` | Scores question vs pattern; RegExp = binary, string = substring/LCS % |
-| `findClosestOption.ts` | Exact match first, then longest overlapping substring |
+| `matchQuestion.ts` | Scores question vs pattern; RegExp = binary; string = substring → fuzzball with whole-word gate |
+| `findClosestOption.ts` | Exact match, yes/no boolean mapping, then longest overlapping substring; skips placeholder options |
 
 ---
 
@@ -270,7 +283,7 @@ Logs `{ request: LogRequest, response: string | null }` as JSON to `console.log`
 | `SubPatternEntry.ts` | Narrower pattern set overriding parent via questionId |
 | `Pattern.ts` | `string \| RegExp` |
 | `ResolvedPatch.ts` | Field + resolved answer or skip reason |
-| `SkippedReason.ts` | Union of skip causes |
+| `SkippedReason.ts` | `already_filled` \| `no_match` \| `no_answer` |
 | `PatchResult.ts` | Aggregate patch outcome |
 | `PatchError.ts` | Per-field patch failure |
 | `LogRequest.ts` | Label + optional options for logging |
@@ -293,12 +306,17 @@ Logs `{ request: LogRequest, response: string | null }` as JSON to `console.log`
 **Template:** `src/data/answers.data.example.ts`
 
 Each entry shape (`AnswerConfigEntry`):
-- `patterns` — strings and/or RegExp to match normalized label text
+- `patterns` — strings and/or RegExp to match normalized label text (regex entries have inline comments)
 - `threshold` — minimum match score (0–100)
 - `questionId` — key into `src/data/answers.data.ts` (`QuestionIdEnum`)
 - `subPatterns` (optional) — ordered overrides with their own patterns/threshold/questionId
 
-**Ordering rule:** first match wins. Group entries by topic (identity, contact, work auth, etc.); put specific labels before broad ones (e.g. "first name" before "name").
+**Ordering rule:** first match wins. Group entries by topic (identity, contact, work auth, compliance, EEO, location, etc.); put specific labels before broad ones (e.g. `NoticePeriodNegotiable` before generic `NoticePeriod`, compliance before location for `country`).
+
+**Common pitfalls when adding patterns:**
+- Broad employment patterns (e.g. `company you work`) can steal compliance questions — use specific phrases and rely on whole-word matching.
+- `country` vs work-authorization — compliance/location order and negative-lookahead regex matter.
+- Empty answers in `answers.data.ts` intentionally skip patch via `no_answer` (e.g. optional `MiddleName`).
 
 **Tuning workflow:** run extension on a form → read console logs from `Logger` → add/adjust patterns in `answers.config.ts` and values in `src/data/answers.data.ts` → rebuild/reload extension.
 
@@ -308,6 +326,7 @@ Each entry shape (`AnswerConfigEntry`):
 
 Defined in `manifest.config.ts`:
 - **Popup** at `src/popup/index.html`
+- **Icons** at `icons/icon{16,48,128}.png`
 - **Content script** on all URLs at idle
 - **Permissions:** `activeTab`, `scripting`
 - **Host permissions:** `<all_urls>`
@@ -321,11 +340,11 @@ npm ci
 cp src/data/answers.data.example.ts src/data/answers.data.ts
 # edit src/data/answers.data.ts with personal answers
 
-npm run dev    # watch build → dist/
+npm run dev    # watch build → dist/ (port 5173)
 npm run build  # production build
 ```
 
-Load `dist/` as an unpacked extension in `chrome://extensions`.
+Load `dist/` as an unpacked extension in `chrome://extensions`. After `npm run dev` restarts, reload the extension if HMR WebSocket errors appear.
 
 Test locally with `src/form/index.html` (open as file or via dev server).
 
@@ -336,12 +355,13 @@ Test locally with `src/form/index.html` (open as file or via dev server).
 1. **Read before edit** — use this file to locate the right service; read that file for behavior and JSDoc.
 2. **Pipeline order** — extract → resolve → log → patch. New field types need changes in both `FormExtractor` and `FormPatcher` (and possibly `AnswerResolver.isAlreadyFilled`).
 3. **Matching changes** — prefer `utils/matchQuestion.ts` and `utils/findClosestOption.ts` over duplicating logic in services.
-4. **Config changes** — edit `answers.config.ts` for patterns; edit `answers.data.example.ts` when adding new `QuestionIdEnum` values. Never put real PII in committed files. User data belongs only in gitignored `src/data/answers.data.ts`.
-5. **Messages** — if adding popup ↔ content communication, extend types in `src/types/` and handle in `src/content/index.ts` and `src/popup/Popup.tsx`.
-6. **Skip filled fields** — patching must remain non-destructive; do not overwrite user-entered values.
-7. **No tests directory yet** — manual testing via `src/form/` and live sites.
-8. **Style** — match existing patterns: class-based services, static utility classes, interfaces in `interfaces/`, JSDoc on public APIs.
-9. **Build** — run `npm run build` after substantive changes to verify TypeScript compiles.
+4. **DOM helpers** — shared visibility, select-empty, and native-setter logic belongs in `utils/domForm.ts`.
+5. **Config changes** — edit `answers.config.ts` for patterns; edit `answers.data.example.ts` when adding new `QuestionIdEnum` values. Never put real PII in committed files. User data belongs only in gitignored `src/data/answers.data.ts`.
+6. **Messages** — if adding popup ↔ content communication, extend types in `src/types/` and handle in `src/content/index.ts` and `src/popup/Popup.tsx`.
+7. **Skip filled fields** — patching must remain non-destructive; do not overwrite user-entered values.
+8. **No automated test suite yet** — manual testing via `src/form/` and live sites; `tsx` is available for ad-hoc scripts.
+9. **Style** — match existing patterns: class-based services, static utility classes, interfaces in `interfaces/`, JSDoc on public APIs.
+10. **Build** — run `npm run build` after substantive changes to verify TypeScript compiles.
 
 ---
 
@@ -350,12 +370,21 @@ Test locally with `src/form/index.html` (open as file or via dev server).
 | Task | Primary files |
 |------|----------------|
 | Add a new answer category | `src/config/answers.config.ts`, `src/enums/QuestionIdEnum.ts`, `src/data/answers.data.example.ts` |
-| Improve label detection | `src/services/FormExtractor.ts` |
+| Improve label detection | `src/services/FormExtractor.ts`, `src/utils/domForm.ts` |
 | Change matching sensitivity | `src/utils/matchQuestion.ts`, config `threshold` values |
+| Fix React/SPA inputs not updating | `src/utils/domForm.ts`, `src/services/FormPatcher.ts` |
 | Support new input type | `FormExtractor`, `FormPatcher`, `InputTypeEnum`, `AnswerResolver.isAlreadyFilled` |
 | Change popup UI | `src/popup/Popup.tsx`, `Popup.module.css` |
 | Change when script runs | `manifest.config.ts`, `src/content/index.ts` |
+| Fix dev HMR / WebSocket errors | `vite.config.ts` |
 | Debug unmatched fields | Browser console (Logger output) while extension runs |
+
+---
+
+## Known Limitations
+
+- Custom div-based dropdowns, contenteditable fields, iframe-embedded forms, autocomplete widgets, and multi-step wizards are not fully supported.
+- Matching quality depends on label extraction and config ordering — use Logger output on real ATS pages to tune.
 
 ---
 
@@ -363,3 +392,4 @@ Test locally with `src/form/index.html` (open as file or via dev server).
 
 - `README.md` — short human-facing setup and build commands
 - Source JSDoc — per-function documentation in each `.ts` file
+- Inline regex comments — in `src/config/answers.config.ts` for each `RegExp` pattern
