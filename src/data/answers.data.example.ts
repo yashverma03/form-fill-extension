@@ -26,6 +26,7 @@ export const ANSWERS_DATA: Record<QuestionIdEnum, string> = {
   [QuestionIdEnum.CompetingOfferLpa]: '16',
   [QuestionIdEnum.SalaryNegotiable]: 'Yes',
   [QuestionIdEnum.NoticePeriod]: '30',
+  [QuestionIdEnum.NoticePeriodNegotiable]: 'Yes',
   [QuestionIdEnum.JoiningTime]: '30 days',
   [QuestionIdEnum.LinkedIn]: 'https://linkedin.com/in/johndoe',
   [QuestionIdEnum.GitHub]: 'https://github.com/johndoe',

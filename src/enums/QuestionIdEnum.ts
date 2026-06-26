@@ -27,6 +27,7 @@ export enum QuestionIdEnum {
   CompetingOfferLpa = 'CompetingOfferLpa',
   SalaryNegotiable = 'SalaryNegotiable',
   NoticePeriod = 'NoticePeriod',
+  NoticePeriodNegotiable = 'NoticePeriodNegotiable',
   JoiningTime = 'JoiningTime',
 
   // ── Links & portfolio ─────────────────────────────────────────────────
