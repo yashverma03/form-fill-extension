@@ -1,11 +1,22 @@
 import type { PatchResult } from '../interfaces/PatchResult';
 import type { ResolvedPatch } from '../interfaces/ResolvedPatch';
 import { InputTypeEnum } from '../enums/InputTypeEnum';
+import {
+  dispatchInputEvents,
+  getFormRoot,
+  isInteractable,
+  isSelectEmpty,
+  setNativeInputValue,
+  setNativeSelectValue,
+} from '../utils/domForm';
 import { ClosestOptionMatcher } from '../utils/findClosestOption';
 import { TextNormalizer } from '../utils/normalizeText';
 
 /** Applies resolved answers to DOM form controls, skipping already-filled fields. */
 export class FormPatcher {
+  private readonly patchedRadioGroups = new Set<string>();
+  private readonly patchedSelects = new Set<HTMLSelectElement>();
+
   /** Runs patches for each resolved item and tallies patched, skipped, and errored counts. */
   patch(resolved: ResolvedPatch[]): PatchResult {
     const result: PatchResult = {
@@ -46,7 +57,7 @@ export class FormPatcher {
   /** Dispatches to the input-type-specific patcher. */
   private applyPatch(item: ResolvedPatch): boolean {
     const { input, answer } = item;
-    if (answer === null) {
+    if (answer === null || !isInteractable(input.element)) {
       return false;
     }
 
@@ -77,23 +88,24 @@ export class FormPatcher {
       return false;
     }
 
-    element.value = answer;
-    this.dispatchInputEvents(element);
+    setNativeInputValue(element, answer);
+    dispatchInputEvents(element);
     return true;
   }
 
-  /** Selects the closest matching option when nothing is selected yet (index 0). */
+  /** Selects the closest matching option when nothing meaningful is selected yet. */
   private patchSelect(element: HTMLElement, answer: string): boolean {
     if (!(element instanceof HTMLSelectElement)) {
       return false;
     }
 
-    if (element.selectedIndex > 0) {
+    if (this.patchedSelects.has(element) || !isSelectEmpty(element)) {
       return false;
     }
 
+    const options = Array.from(element.options);
     const targetIndex = ClosestOptionMatcher.findIndex(
-      Array.from(element.options).map((option) => option.text),
+      options.map((option) => option.text),
       answer,
     );
 
@@ -101,8 +113,15 @@ export class FormPatcher {
       return false;
     }
 
+    const targetOption = options[targetIndex];
+    if (!targetOption) {
+      return false;
+    }
+
     element.selectedIndex = targetIndex;
-    this.dispatchInputEvents(element);
+    setNativeSelectValue(element, targetOption.value);
+    this.patchedSelects.add(element);
+    dispatchInputEvents(element);
     return true;
   }
 
@@ -117,7 +136,13 @@ export class FormPatcher {
       return false;
     }
 
-    const group = document.querySelectorAll<HTMLInputElement>(
+    const groupKey = `${getFormRoot(element) === document ? 'document' : 'form'}:radio:${name}`;
+    if (this.patchedRadioGroups.has(groupKey)) {
+      return false;
+    }
+
+    const formRoot = getFormRoot(element);
+    const group = formRoot.querySelectorAll<HTMLInputElement>(
       `input[type="radio"][name="${CSS.escape(name)}"]`,
     );
 
@@ -137,11 +162,12 @@ export class FormPatcher {
     }
 
     target.checked = true;
-    this.dispatchInputEvents(target);
+    this.patchedRadioGroups.add(groupKey);
+    dispatchInputEvents(target);
     return true;
   }
 
-  /** Checks the box when the answer is truthy (yes/true/1/on) and it is unchecked. */
+  /** Checks the box when the answer matches a truthy value or option label. */
   private patchCheckbox(element: HTMLElement, answer: string): boolean {
     if (!(element instanceof HTMLInputElement) || element.type !== 'checkbox') {
       return false;
@@ -151,15 +177,26 @@ export class FormPatcher {
       return false;
     }
 
-    const truthy = ['yes', 'true', '1', 'on'].includes(
-      TextNormalizer.normalizeText(answer),
+    const label = this.getRadioLabel(element);
+    const normalizedAnswer = TextNormalizer.normalizeText(answer);
+    const normalizedLabel = TextNormalizer.normalizeText(label);
+    const normalizedValue = TextNormalizer.normalizeText(element.value);
+
+    const truthy = ['yes', 'true', '1', 'on', 'accepted'].includes(
+      normalizedAnswer,
     );
-    if (!truthy) {
+    const labelMatches =
+      normalizedAnswer === normalizedLabel ||
+      normalizedAnswer === normalizedValue ||
+      normalizedLabel.includes(normalizedAnswer) ||
+      normalizedAnswer.includes(normalizedLabel);
+
+    if (!truthy && !labelMatches) {
       return false;
     }
 
     element.checked = true;
-    this.dispatchInputEvents(element);
+    dispatchInputEvents(element);
     return true;
   }
 
@@ -174,13 +211,12 @@ export class FormPatcher {
         return label.textContent;
       }
     }
-    return radio.value;
-  }
 
-  /** Fires input/change/blur so frameworks detect programmatic updates. */
-  private dispatchInputEvents(element: HTMLElement): void {
-    element.dispatchEvent(new Event('input', { bubbles: true }));
-    element.dispatchEvent(new Event('change', { bubbles: true }));
-    element.dispatchEvent(new Event('blur', { bubbles: true }));
+    const parentLabel = radio.closest('label');
+    if (parentLabel?.textContent) {
+      return parentLabel.textContent;
+    }
+
+    return radio.value;
   }
 }

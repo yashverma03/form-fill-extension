@@ -4,8 +4,10 @@ import type { ExtractedInput } from '../interfaces/ExtractedInput';
 import type { LogRequest } from '../interfaces/LogRequest';
 import type { ResolvedPatch } from '../interfaces/ResolvedPatch';
 import { InputTypeEnum } from '../enums/InputTypeEnum';
+import { isSelectEmpty, getFormRoot } from '../utils/domForm';
 import { ClosestOptionMatcher } from '../utils/findClosestOption';
 import { QuestionMatcher } from '../utils/matchQuestion';
+import { TextNormalizer } from '../utils/normalizeText';
 
 /** Maps extracted form fields to config answers via fuzzy question matching. */
 export class AnswerResolver {
@@ -39,7 +41,16 @@ export class AnswerResolver {
       };
     }
 
-    const question = input.labelText;
+    const question = this.buildQuestionText(input);
+    if (!question) {
+      return {
+        input,
+        answer: null,
+        configIndex: null,
+        skippedReason: 'no_match',
+      };
+    }
+
     const match = this.findFirstMatch(question);
 
     if (!match) {
@@ -67,6 +78,15 @@ export class AnswerResolver {
       answer,
       configIndex: match.index,
     };
+  }
+
+  /** Combines label and section context for more reliable matching. */
+  private buildQuestionText(input: ExtractedInput): string {
+    const parts = [input.labelText, input.contextText].filter(
+      (part) => part.trim().length > 0,
+    );
+
+    return TextNormalizer.normalizeText(parts.join(' '));
   }
 
   /** Returns the first config entry whose patterns meet the threshold (order matters). */
@@ -135,7 +155,7 @@ export class AnswerResolver {
       inputType === InputTypeEnum.Select &&
       element instanceof HTMLSelectElement
     ) {
-      return element.selectedIndex > 0;
+      return !isSelectEmpty(element);
     }
 
     if (
@@ -146,8 +166,10 @@ export class AnswerResolver {
       if (!name) {
         return false;
       }
+
+      const formRoot = getFormRoot(element);
       return (
-        document.querySelector<HTMLInputElement>(
+        formRoot.querySelector<HTMLInputElement>(
           `input[type="radio"][name="${CSS.escape(name)}"]:checked`,
         ) !== null
       );
