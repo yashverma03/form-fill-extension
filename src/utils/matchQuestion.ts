@@ -1,5 +1,8 @@
+import { partial_ratio, token_set_ratio } from 'fuzzball';
 import type { Pattern } from '../interfaces/Pattern';
 import { TextNormalizer } from './normalizeText';
+
+const MIN_FUZZY_WORD_LENGTH = 3;
 
 /** Scores how well a form question matches config patterns. */
 export class QuestionMatcher {
@@ -18,7 +21,7 @@ export class QuestionMatcher {
     return false;
   }
 
-  /** Substring match on question or pattern; regex patterns are all-or-nothing. */
+  /** Substring match first, then fuzzball token/partial ratio when all pattern words appear. */
   private static stringPatternScore(question: string, pattern: string): number {
     const normalizedQuestion = TextNormalizer.normalizeText(question);
     const normalizedPattern = TextNormalizer.normalizeText(pattern);
@@ -31,10 +34,38 @@ export class QuestionMatcher {
       return 100;
     }
 
-    return 0;
+    if (
+      !QuestionMatcher.patternWordsAppearInQuestion(
+        normalizedPattern,
+        normalizedQuestion,
+      )
+    ) {
+      return 0;
+    }
+
+    return Math.max(
+      token_set_ratio(normalizedPattern, normalizedQuestion),
+      partial_ratio(normalizedPattern, normalizedQuestion),
+    );
   }
 
-  /** RegExp patterns are all-or-nothing; strings use substring scoring. */
+  /** Requires significant pattern tokens to appear in the question before fuzzy scoring. */
+  private static patternWordsAppearInQuestion(
+    pattern: string,
+    question: string,
+  ): boolean {
+    const words = pattern
+      .split(/\s+/)
+      .filter((word) => word.length >= MIN_FUZZY_WORD_LENGTH);
+
+    if (words.length === 0) {
+      return false;
+    }
+
+    return words.every((word) => question.includes(word));
+  }
+
+  /** RegExp patterns are all-or-nothing; strings use substring + fuzzball scoring. */
   private static patternScore(question: string, pattern: Pattern): number {
     if (pattern instanceof RegExp) {
       return pattern.test(TextNormalizer.normalizeText(question)) ? 100 : 0;
