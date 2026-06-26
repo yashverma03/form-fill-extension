@@ -54,7 +54,7 @@ export function Popup() {
   if (state.status === 'loading') {
     return (
       <main className={styles.main}>
-        <p className={styles.loadingText}>Filling form...</p>
+        <p className={styles.loadingText}>Filling form…</p>
       </main>
     );
   }
@@ -62,22 +62,30 @@ export function Popup() {
   if (state.status === 'error') {
     return (
       <main className={styles.main}>
-        <h1 className={styles.errorTitle}>Error</h1>
-        <p className={styles.message}>{state.message}</p>
+        <p className={styles.errorMessage}>{state.message}</p>
       </main>
     );
   }
 
   const { patched, skipped, errors } = state.result;
+  const rows = [
+    { label: 'Patched', value: patched },
+    { label: 'Skipped', value: skipped },
+    ...(errors.length > 0 ? [{ label: 'Errors', value: errors.length }] : []),
+  ];
 
   return (
     <main className={styles.main}>
-      <h1 className={styles.title}>Form Filler</h1>
-      <p className={styles.message}>
-        Patched {patched} field{patched === 1 ? '' : 's'}. {skipped} skipped.{' '}
-        {errors.length} error
-        {errors.length === 1 ? '' : 's'}.
-      </p>
+      <table className={styles.table}>
+        <tbody>
+          {rows.map((row) => (
+            <tr key={row.label}>
+              <th scope="row">{row.label}</th>
+              <td>{row.value}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
       {errors.length > 0 && (
         <ul className={styles.errorList}>
           {errors.map((error) => (

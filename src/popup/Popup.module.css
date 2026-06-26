@@ -1,23 +1,31 @@
 .main {
-  @apply p-4;
+  @apply p-3;
 }
 
 .loadingText {
-  @apply text-sm text-gray-600;
+  @apply text-sm text-gray-500;
 }
 
-.title {
-  @apply text-base font-semibold text-gray-900;
+.errorMessage {
+  @apply text-sm text-red-600;
 }
 
-.errorTitle {
-  @apply text-base font-semibold text-red-600;
+.table {
+  @apply w-full border-collapse text-sm;
 }
 
-.message {
-  @apply mt-2 text-sm text-gray-700;
+.table th {
+  @apply py-1 pr-6 text-left font-normal text-gray-500;
+}
+
+.table td {
+  @apply py-1 text-right font-medium tabular-nums text-gray-900;
 }
 
 .errorList {
-  @apply mt-3 list-disc space-y-1 pl-4 text-xs text-red-600;
+  @apply mt-3 space-y-1 border-t border-gray-100 pt-3 text-xs text-red-600;
+}
+
+.errorList li {
+  @apply leading-snug;
 }
