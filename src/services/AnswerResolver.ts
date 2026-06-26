@@ -53,6 +53,15 @@ export class AnswerResolver {
 
     const answer = this.resolveAnswer(input, match.entry, question);
 
+    if (answer === null) {
+      return {
+        input,
+        answer: null,
+        configIndex: match.index,
+        skippedReason: 'no_answer',
+      };
+    }
+
     return {
       input,
       answer,
@@ -79,7 +88,7 @@ export class AnswerResolver {
     entry: AnswerConfigEntry,
     question: string,
   ): string | null {
-    let answer = this.answers[entry.questionId] ?? '';
+    let questionId = entry.questionId;
 
     if (entry.subPatterns && entry.subPatterns.length > 0) {
       for (const subPattern of entry.subPatterns) {
@@ -90,17 +99,32 @@ export class AnswerResolver {
             subPattern.patterns,
           )
         ) {
-          answer = this.answers[subPattern.questionId] ?? '';
+          questionId = subPattern.questionId;
           break;
         }
       }
+    }
+
+    const answer = this.getConfiguredAnswer(questionId);
+    if (answer === null) {
+      return null;
     }
 
     if (input.options.length === 0) {
       return answer;
     }
 
-    return ClosestOptionMatcher.find(input.options, answer) ?? answer;
+    return ClosestOptionMatcher.find(input.options, answer);
+  }
+
+  /** Returns a configured answer only when explicitly set and non-empty. */
+  private getConfiguredAnswer(questionId: QuestionIdEnum): string | null {
+    const answer = this.answers[questionId];
+    if (answer === undefined || answer.trim() === '') {
+      return null;
+    }
+
+    return answer;
   }
 
   /** Detects existing user input per control type (select index, checked state, value). */
