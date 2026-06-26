@@ -20,14 +20,7 @@ async function runFiller(): Promise<FillerResultMessage> {
   const resolved = resolver.resolve(inputs);
 
   for (const patch of resolved) {
-    logger.log(
-      {
-        text: resolver.getQuestionText(patch.input),
-        type: patch.input.inputType,
-        options: patch.input.options,
-      },
-      patch.answer,
-    );
+    logger.log(resolver.getLogRequest(patch.input), patch.answer);
   }
 
   const patcher = new FormPatcher();

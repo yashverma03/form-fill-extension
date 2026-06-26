@@ -1,6 +1,7 @@
 import type { PatchResult } from '../interfaces/PatchResult';
 import type { ResolvedPatch } from '../interfaces/ResolvedPatch';
 import { InputTypeEnum } from '../enums/InputTypeEnum';
+import { ClosestOptionMatcher } from '../utils/findClosestOption';
 import { TextNormalizer } from '../utils/normalizeText';
 
 export class FormPatcher {
@@ -86,7 +87,7 @@ export class FormPatcher {
       return false;
     }
 
-    const targetIndex = this.findBestOptionIndex(
+    const targetIndex = ClosestOptionMatcher.findIndex(
       Array.from(element.options).map((option) => option.text),
       answer,
     );
@@ -119,7 +120,7 @@ export class FormPatcher {
     }
 
     const labels = Array.from(group).map((radio) => this.getRadioLabel(radio));
-    const targetIndex = this.findBestOptionIndex(labels, answer);
+    const targetIndex = ClosestOptionMatcher.findIndex(labels, answer);
     if (targetIndex < 0) {
       return false;
     }
@@ -166,37 +167,6 @@ export class FormPatcher {
       }
     }
     return radio.value;
-  }
-
-  private findBestOptionIndex(options: string[], answer: string): number {
-    const normalizedAnswer = TextNormalizer.normalizeText(answer);
-    let bestIndex = -1;
-    let bestScore = 0;
-
-    options.forEach((option, index) => {
-      const normalizedOption = TextNormalizer.normalizeText(option);
-      if (normalizedOption === normalizedAnswer) {
-        bestIndex = index;
-        bestScore = 100;
-        return;
-      }
-
-      if (
-        normalizedOption.includes(normalizedAnswer) ||
-        normalizedAnswer.includes(normalizedOption)
-      ) {
-        const score = Math.min(
-          normalizedAnswer.length,
-          normalizedOption.length,
-        );
-        if (score > bestScore) {
-          bestScore = score;
-          bestIndex = index;
-        }
-      }
-    });
-
-    return bestIndex;
   }
 
   private dispatchInputEvents(element: HTMLElement): void {
