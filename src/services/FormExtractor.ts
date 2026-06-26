@@ -153,7 +153,7 @@ export class FormExtractor {
     const labelledBy = element.getAttribute('aria-labelledby');
     if (labelledBy) {
       const text = labelledBy
-        .split(/\s+/)
+        .split(/\s+/) // aria-labelledby may list multiple id refs
         .map((refId) => document.getElementById(refId)?.textContent ?? '')
         .join(' ');
       if (text.trim()) {
@@ -178,7 +178,7 @@ export class FormExtractor {
 
     const name = element.getAttribute('name');
     if (name) {
-      return TextNormalizer.normalizeText(name.replace(/[_-]+/g, ' '));
+      return TextNormalizer.normalizeText(name.replace(/[_-]+/g, ' ')); // snake_case / kebab-case → words
     }
 
     return '';
@@ -239,7 +239,7 @@ export class FormExtractor {
     const labelledBy = group.getAttribute('aria-labelledby');
     if (labelledBy) {
       const text = labelledBy
-        .split(/\s+/)
+        .split(/\s+/) // aria-labelledby may list multiple id refs
         .map((refId) => document.getElementById(refId)?.textContent ?? '')
         .join(' ');
       if (text.trim()) {
@@ -297,7 +297,9 @@ export class FormExtractor {
   /** Strips dev tags and normalizes label copy. */
   private cleanLabelText(text: string): string {
     return TextNormalizer.normalizeText(
-      text.replace(/\bconfig\b/gi, '').replace(/\bextra\b/gi, ''),
+      text
+        .replace(/\bconfig\b/gi, '') // remove test-form "config" tag word
+        .replace(/\bextra\b/gi, ''), // remove test-form "extra" tag word
     );
   }
 

@@ -5,7 +5,7 @@ import type { AnswerConfigEntry } from '../interfaces/AnswerConfigEntry';
 export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
   // ── Identity (high priority, specific first) ──────────────────────────
   {
-    patterns: ['first name', 'given name', 'forename', /^first$/],
+    patterns: ['first name', 'given name', 'forename', /^first$/], // ^first$ = label is exactly "first"
     threshold: 55,
     questionId: QuestionIdEnum.FirstName,
   },
@@ -15,7 +15,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
     questionId: QuestionIdEnum.MiddleName,
   },
   {
-    patterns: ['last name', 'surname', 'family name', /^last$/],
+    patterns: ['last name', 'surname', 'family name', /^last$/], // ^last$ = label is exactly "last"
     threshold: 55,
     questionId: QuestionIdEnum.LastName,
   },
@@ -63,9 +63,9 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'whatsapp',
       'alternate phone',
       'secondary phone',
-      /phone\s*number/,
-      /^phone$/,
-      /^mobile$/,
+      /phone\s*number/, // "phone" + optional spaces + "number"
+      /^phone$/, // label is exactly "phone"
+      /^mobile$/, // label is exactly "mobile"
     ],
     threshold: 50,
     questionId: QuestionIdEnum.Phone,
@@ -89,9 +89,10 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'present company',
       'current employer',
       'present employer',
-      'company you work',
+      'company you work for',
+      'employer name',
     ],
-    threshold: 30,
+    threshold: 50,
     questionId: QuestionIdEnum.CurrentCompany,
   },
   {
@@ -100,8 +101,8 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'total experience',
       'overall experience',
       'years of relevant experience',
-      /experience.*year/,
-      /years.*experience/,
+      /experience.*year/, // "experience" … "year" (e.g. "experience in years")
+      /years.*experience/, // "years" … "experience" (e.g. "5 years of experience")
     ],
     threshold: 45,
     questionId: QuestionIdEnum.YearsOfExperience,
@@ -115,7 +116,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'present salary',
       'present ctc',
       'current compensation',
-      /current.*(salary|ctc|compensation)/,
+      /current.*(salary|ctc|compensation)/, // "current" … salary/ctc/compensation
     ],
     threshold: 45,
     subPatterns: [
@@ -135,7 +136,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'desired ctc',
       'salary expectation',
       'compensation expectation',
-      /expected.*(salary|ctc|compensation)/,
+      /expected.*(salary|ctc|compensation)/, // "expected" … salary/ctc/compensation
     ],
     threshold: 45,
     subPatterns: [
@@ -171,8 +172,8 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'do you have an offer',
       'any other offer',
       'offer elsewhere',
-      /competing.*(ctc|salary|compensation|offer)/,
-      /other.*offer/,
+      /competing.*(ctc|salary|compensation|offer)/, // "competing" … offer-related term
+      /other.*offer/, // "other" … "offer" (e.g. "any other offer")
     ],
     threshold: 40,
     subPatterns: [
@@ -206,8 +207,8 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'join before notice ends',
       'join earlier than notice',
       'early joining possible',
-      /notice.*negotiable/,
-      /negotiable.*notice/,
+      /notice.*negotiable/, // "notice" … "negotiable"
+      /negotiable.*notice/, // "negotiable" … "notice"
     ],
     threshold: 40,
     questionId: QuestionIdEnum.NoticePeriodNegotiable,
@@ -223,7 +224,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'notice period days',
       'serving notice',
       'notice in days',
-      /notice period(?! negotiable)/,
+      /notice period(?! negotiable)/, // "notice period" not followed by " negotiable"
     ],
     threshold: 45,
     questionId: QuestionIdEnum.NoticePeriod,
@@ -323,8 +324,11 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
   },
   {
     patterns: [
+      'relative working at',
       'relative working',
+      'relatives work',
       'family member employed',
+      'family member work',
       'know anyone at',
       'employee referral relation',
     ],
@@ -424,8 +428,8 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
     patterns: [
       'select country',
       'which country',
-      /^country$/,
-      /country(?!.*authorized)/,
+      /^country$/, // label is exactly "country"
+      /country(?!.*authorized)/, // "country" but not work-authorization questions
     ],
     threshold: 50,
     questionId: QuestionIdEnum.Country,
@@ -448,7 +452,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
     questionId: QuestionIdEnum.CurrentLocation,
   },
   {
-    patterns: [/^city$/, 'town', 'municipality'],
+    patterns: [/^city$/, 'town', 'municipality'], // ^city$ = label is exactly "city"
     threshold: 50,
     questionId: QuestionIdEnum.City,
   },

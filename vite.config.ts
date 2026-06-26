@@ -13,7 +13,7 @@ export default defineConfig({
       port: 5173,
     },
     cors: {
-      origin: [/chrome-extension:\/\//],
+      origin: [/chrome-extension:\/\//], // allow extension pages to load dev server assets
     },
   },
   // Vite 6.0.9+ requires a WebSocket token; the extension service worker can

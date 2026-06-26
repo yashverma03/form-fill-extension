@@ -55,14 +55,22 @@ export class QuestionMatcher {
     question: string,
   ): boolean {
     const words = pattern
-      .split(/\s+/)
+      .split(/\s+/) // split pattern into words on whitespace
       .filter((word) => word.length >= MIN_FUZZY_WORD_LENGTH);
 
     if (words.length === 0) {
       return false;
     }
 
-    return words.every((word) => question.includes(word));
+    return words.every((word) =>
+      // \bword\b = whole-word match (avoids "work" matching inside "working")
+      new RegExp(`\\b${QuestionMatcher.escapeRegExp(word)}\\b`).test(question),
+    );
+  }
+
+  /** Escapes regex metacharacters so a literal string is safe inside RegExp. */
+  private static escapeRegExp(value: string): string {
+    return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // prefix special chars with backslash
   }
 
   /** RegExp patterns are all-or-nothing; strings use substring + fuzzball scoring. */
