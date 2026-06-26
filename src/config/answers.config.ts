@@ -298,7 +298,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'immigration sponsorship',
       'do you require visa',
     ],
-    threshold: 40,
+    threshold: 20,
     questionId: QuestionIdEnum.VisaSponsorshipRequired,
   },
   {
@@ -309,7 +309,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'permit expiry',
       'visa expiry',
     ],
-    threshold: 40,
+    threshold: 20,
     questionId: QuestionIdEnum.VisaStatus,
   },
   {
@@ -318,7 +318,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'financial interest',
       'outside business interest',
     ],
-    threshold: 40,
+    threshold: 10,
     questionId: QuestionIdEnum.ConflictOfInterest,
   },
   {
@@ -328,7 +328,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'know anyone at',
       'employee referral relation',
     ],
-    threshold: 40,
+    threshold: 10,
     questionId: QuestionIdEnum.RelativeAtCompany,
   },
   {
@@ -338,7 +338,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'restrictive covenant',
       'bound by agreement',
     ],
-    threshold: 40,
+    threshold: 10,
     questionId: QuestionIdEnum.NonCompeteAgreement,
   },
   {
@@ -349,12 +349,12 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'convicted',
       'criminal history',
     ],
-    threshold: 40,
+    threshold: 10,
     questionId: QuestionIdEnum.CriminalRecord,
   },
   {
     patterns: ['security clearance', 'government clearance'],
-    threshold: 40,
+    threshold: 10,
     questionId: QuestionIdEnum.SecurityClearance,
   },
   {
@@ -368,7 +368,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'declaration',
       'accuracy of information',
     ],
-    threshold: 40,
+    threshold: 10,
     questionId: QuestionIdEnum.TermsConsent,
   },
 
