@@ -5,6 +5,7 @@ export enum QuestionIdEnum {
   LastName = 'LastName',
   FullName = 'FullName',
   PreferredName = 'PreferredName',
+  MiddleName = 'MiddleName',
 
   // ── Contact ───────────────────────────────────────────────────────────
   Email = 'Email',

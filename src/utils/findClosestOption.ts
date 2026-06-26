@@ -1,16 +1,58 @@
 import { TextNormalizer } from './normalizeText';
 
+const EMPTY_OPTION_LABELS = new Set([
+  '',
+  'select',
+  'select type',
+  'select country',
+  'select source',
+  'choose',
+  'choose one',
+]);
+
+const BOOLEAN_NO_ANSWERS = new Set([
+  'no',
+  'false',
+  '0',
+  'not applicable',
+  'n a',
+  'na',
+  'none',
+  'nope',
+]);
+
+const BOOLEAN_YES_ANSWERS = new Set(['yes', 'true', '1', 'yep']);
+
 /** Picks the best-matching option from a list for select/radio answers. */
 export class ClosestOptionMatcher {
   /** Returns option index: exact match first, then longest substring overlap. */
   static findIndex(options: string[], answer: string): number {
     const normalizedAnswer = TextNormalizer.normalizeText(answer);
+    const booleanTarget = ClosestOptionMatcher.resolveBooleanOption(
+      normalizedAnswer,
+    );
+
     let bestIndex = -1;
     let bestScore = 0;
 
     options.forEach((option, index) => {
       const normalizedOption = TextNormalizer.normalizeText(option);
+
+      if (EMPTY_OPTION_LABELS.has(normalizedOption)) {
+        return;
+      }
+
       if (normalizedOption === normalizedAnswer) {
+        bestIndex = index;
+        bestScore = 100;
+        return;
+      }
+
+      if (
+        booleanTarget &&
+        (normalizedOption === booleanTarget ||
+          normalizedOption.startsWith(`${booleanTarget} `))
+      ) {
         bestIndex = index;
         bestScore = 100;
         return;
@@ -20,7 +62,10 @@ export class ClosestOptionMatcher {
         normalizedOption.includes(normalizedAnswer) ||
         normalizedAnswer.includes(normalizedOption)
       ) {
-        const score = Math.min(normalizedAnswer.length, normalizedOption.length);
+        const score = Math.min(
+          normalizedAnswer.length,
+          normalizedOption.length,
+        );
         if (score > bestScore) {
           bestScore = score;
           bestIndex = index;
@@ -39,5 +84,20 @@ export class ClosestOptionMatcher {
     }
 
     return options[index] ?? null;
+  }
+
+  /** Maps free-text answers to yes/no option labels when possible. */
+  private static resolveBooleanOption(
+    normalizedAnswer: string,
+  ): 'yes' | 'no' | null {
+    if (BOOLEAN_YES_ANSWERS.has(normalizedAnswer)) {
+      return 'yes';
+    }
+
+    if (BOOLEAN_NO_ANSWERS.has(normalizedAnswer)) {
+      return 'no';
+    }
+
+    return null;
   }
 }

@@ -20,6 +20,7 @@ export class FormExtractor {
       'input, select, textarea',
     );
     const seen = new Set<HTMLElement>();
+    const seenGroups = new Set<string>();
     const results: ExtractedInput[] = [];
 
     for (const element of elements) {
@@ -27,11 +28,35 @@ export class FormExtractor {
         continue;
       }
 
+      if (element instanceof HTMLInputElement) {
+        const groupKey = this.groupKey(element);
+        if (groupKey) {
+          if (seenGroups.has(groupKey)) {
+            continue;
+          }
+          seenGroups.add(groupKey);
+        }
+      }
+
       seen.add(element);
       results.push(this.toExtractedInput(element));
     }
 
     return results;
+  }
+
+  /** One representative control per radio/checkbox group. */
+  private groupKey(element: HTMLInputElement): string | null {
+    if (element.type !== 'radio' && element.type !== 'checkbox') {
+      return null;
+    }
+
+    const name = element.name;
+    if (!name) {
+      return null;
+    }
+
+    return `${element.type}:${name}`;
   }
 
   /** Filters disabled, hidden, and non-interactive elements. */
@@ -83,6 +108,16 @@ export class FormExtractor {
 
   /** Resolves question text via label, aria, placeholder, siblings, or name. */
   private resolveLabelText(element: HTMLElement): string {
+    const fieldLabel = this.resolveFieldContainerLabel(element);
+    if (fieldLabel) {
+      return fieldLabel;
+    }
+
+    const groupLabel = this.resolveGroupLabel(element);
+    if (groupLabel) {
+      return groupLabel;
+    }
+
     const id = element.getAttribute('id');
 
     if (id) {
@@ -90,7 +125,7 @@ export class FormExtractor {
         `label[for="${CSS.escape(id)}"]`,
       );
       if (label?.textContent) {
-        return TextNormalizer.normalizeText(label.textContent);
+        return this.cleanLabelText(label.textContent);
       }
     }
 
@@ -106,7 +141,7 @@ export class FormExtractor {
         .map((refId) => document.getElementById(refId)?.textContent ?? '')
         .join(' ');
       if (text.trim()) {
-        return TextNormalizer.normalizeText(text);
+        return this.cleanLabelText(text);
       }
     }
 
@@ -120,11 +155,6 @@ export class FormExtractor {
       }
     }
 
-    const siblingText = this.findClosestText(element);
-    if (siblingText) {
-      return TextNormalizer.normalizeText(siblingText);
-    }
-
     const name = element.getAttribute('name');
     if (name) {
       return TextNormalizer.normalizeText(name.replace(/[_-]+/g, ' '));
@@ -133,32 +163,69 @@ export class FormExtractor {
     return '';
   }
 
-  /** Walks previous siblings and parent text when no explicit label exists. */
-  private findClosestText(element: HTMLElement): string {
-    let current: HTMLElement | null =
-      element.previousElementSibling as HTMLElement | null;
+  /** Question label from the enclosing field container (sibling label, not option label). */
+  private resolveFieldContainerLabel(element: HTMLElement): string {
+    const field = element.closest(
+      '.field, .field-row, fieldset, [class*="field"]',
+    );
+    if (!field) {
+      return '';
+    }
 
-    for (let depth = 0; depth < 3 && current; depth += 1) {
-      const text = current.textContent?.trim();
+    for (const label of field.querySelectorAll<HTMLLabelElement>(
+      ':scope > label',
+    )) {
+      if (label.contains(element)) {
+        continue;
+      }
+
+      const text = this.cleanLabelText(label.textContent ?? '');
       if (text) {
         return text;
       }
-      current = current.previousElementSibling as HTMLElement | null;
     }
 
-    const parent = element.parentElement;
-    if (parent) {
-      const clone = parent.cloneNode(true) as HTMLElement;
-      for (const child of clone.querySelectorAll('input, select, textarea')) {
-        child.remove();
-      }
-      const text = clone.textContent?.trim();
+    for (const label of field.querySelectorAll<HTMLLabelElement>('label[for]')) {
+      const text = this.cleanLabelText(label.textContent ?? '');
       if (text) {
         return text;
       }
     }
 
     return '';
+  }
+
+  /** aria-label / aria-labelledby on radio or checkbox groups. */
+  private resolveGroupLabel(element: HTMLElement): string {
+    const group = element.closest('[role="radiogroup"], [role="group"]');
+    if (!group) {
+      return '';
+    }
+
+    const ariaLabel = group.getAttribute('aria-label');
+    if (ariaLabel) {
+      return TextNormalizer.normalizeText(ariaLabel);
+    }
+
+    const labelledBy = group.getAttribute('aria-labelledby');
+    if (labelledBy) {
+      const text = labelledBy
+        .split(/\s+/)
+        .map((refId) => document.getElementById(refId)?.textContent ?? '')
+        .join(' ');
+      if (text.trim()) {
+        return this.cleanLabelText(text);
+      }
+    }
+
+    return '';
+  }
+
+  /** Strips dev tags and normalizes label copy. */
+  private cleanLabelText(text: string): string {
+    return TextNormalizer.normalizeText(
+      text.replace(/\bconfig\b/gi, '').replace(/\bextra\b/gi, ''),
+    );
   }
 
   /** Gathers heading and container text for disambiguating similar labels. */
@@ -244,6 +311,12 @@ export class FormExtractor {
             return TextNormalizer.normalizeText(label.textContent);
           }
         }
+
+        const parentLabel = input.closest('label');
+        if (parentLabel?.textContent) {
+          return this.cleanLabelText(parentLabel.textContent);
+        }
+
         return TextNormalizer.normalizeText(input.value);
       });
     }

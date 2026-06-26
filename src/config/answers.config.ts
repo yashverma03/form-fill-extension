@@ -10,6 +10,11 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
     questionId: QuestionIdEnum.FirstName,
   },
   {
+    patterns: ['middle name', 'middle initial', 'second name'],
+    threshold: 50,
+    questionId: QuestionIdEnum.MiddleName,
+  },
+  {
     patterns: ['last name', 'surname', 'family name', /^last$/],
     threshold: 55,
     questionId: QuestionIdEnum.LastName,
@@ -39,6 +44,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
   {
     patterns: [
       'preferred contact',
+      'preferred contact method',
       'contact method',
       'how should we contact',
       'best way to reach',
@@ -90,17 +96,6 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
   },
   {
     patterns: [
-      'current location',
-      'current city',
-      'present location',
-      'where are you located',
-      'city you are based',
-    ],
-    threshold: 30,
-    questionId: QuestionIdEnum.CurrentLocation,
-  },
-  {
-    patterns: [
       'years of experience',
       'total experience',
       'overall experience',
@@ -126,7 +121,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
     subPatterns: [
       {
         patterns: ['lpa', 'lakhs', 'lakh'],
-        threshold: 10,
+        threshold: 40,
         questionId: QuestionIdEnum.CurrentCtcLpa,
       },
     ],
@@ -146,7 +141,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
     subPatterns: [
       {
         patterns: ['lpa', 'lakhs', 'lakh'],
-        threshold: 10,
+        threshold: 40,
         questionId: QuestionIdEnum.ExpectedCtcLpa,
       },
     ],
@@ -183,7 +178,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
     subPatterns: [
       {
         patterns: ['lpa', 'lakhs', 'lakh'],
-        threshold: 10,
+        threshold: 40,
         questionId: QuestionIdEnum.CompetingOfferLpa,
       },
     ],
@@ -214,7 +209,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       /notice.*negotiable/,
       /negotiable.*notice/,
     ],
-    threshold: 10,
+    threshold: 40,
     questionId: QuestionIdEnum.NoticePeriodNegotiable,
   },
   {
@@ -225,9 +220,10 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
   {
     patterns: [
       'notice period',
+      'notice period days',
       'serving notice',
       'notice in days',
-      /notice.*period/,
+      /notice period(?! negotiable)/,
     ],
     threshold: 45,
     questionId: QuestionIdEnum.NoticePeriod,
@@ -236,12 +232,19 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
     patterns: [
       'when can you join',
       'joining time',
-      'earliest start',
       'available to start',
+    ],
+    threshold: 35,
+    questionId: QuestionIdEnum.JoiningTime,
+  },
+  {
+    patterns: [
+      'earliest start',
+      'earliest start date',
       'start date',
       'date available',
     ],
-    threshold: 35,
+    threshold: 40,
     questionId: QuestionIdEnum.JoiningTime,
   },
 
@@ -259,19 +262,156 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
   {
     patterns: [
       'portfolio',
+      'portfolio personal website',
       'personal website',
-      'website url',
       'portfolio url',
       'personal site',
-      /portfolio|website/,
     ],
     threshold: 45,
     questionId: QuestionIdEnum.Portfolio,
   },
   {
-    patterns: ['leetcode', 'hackerrank', 'codility', 'codechef', 'codeforces'],
+    patterns: ['leetcode', 'hackerrank', 'codility', 'codechef', 'codeforces', 'geeksforgeeks'],
     threshold: 55,
     questionId: QuestionIdEnum.LeetCode,
+  },
+
+  // ── Work authorization & compliance ───────────────────────────────────
+  {
+    patterns: [
+      'legally authorized',
+      'authorized to work',
+      'work authorization',
+      'work eligibility',
+      'eligible to work',
+      'right to work',
+    ],
+    threshold: 40,
+    questionId: QuestionIdEnum.LegallyAuthorizedToWork,
+  },
+  {
+    patterns: [
+      'visa sponsorship',
+      'require visa sponsorship',
+      'require sponsorship',
+      'need sponsorship',
+      'immigration sponsorship',
+      'do you require visa',
+    ],
+    threshold: 40,
+    questionId: QuestionIdEnum.VisaSponsorshipRequired,
+  },
+  {
+    patterns: [
+      'visa work permit status',
+      'work permit status',
+      'visa status',
+      'permit expiry',
+      'visa expiry',
+    ],
+    threshold: 40,
+    questionId: QuestionIdEnum.VisaStatus,
+  },
+  {
+    patterns: [
+      'conflict of interest',
+      'financial interest',
+      'outside business interest',
+    ],
+    threshold: 40,
+    questionId: QuestionIdEnum.ConflictOfInterest,
+  },
+  {
+    patterns: [
+      'relative working',
+      'family member employed',
+      'know anyone at',
+      'employee referral relation',
+    ],
+    threshold: 40,
+    questionId: QuestionIdEnum.RelativeAtCompany,
+  },
+  {
+    patterns: [
+      'non-compete',
+      'non compete',
+      'restrictive covenant',
+      'bound by agreement',
+    ],
+    threshold: 40,
+    questionId: QuestionIdEnum.NonCompeteAgreement,
+  },
+  {
+    patterns: [
+      'background check',
+      'criminal record',
+      'felony',
+      'convicted',
+      'criminal history',
+    ],
+    threshold: 40,
+    questionId: QuestionIdEnum.CriminalRecord,
+  },
+  {
+    patterns: ['security clearance', 'government clearance'],
+    threshold: 40,
+    questionId: QuestionIdEnum.SecurityClearance,
+  },
+  {
+    patterns: [
+      'terms and conditions',
+      'privacy policy',
+      'consent',
+      'agree to',
+      'i confirm',
+      'i certify',
+      'declaration',
+      'accuracy of information',
+    ],
+    threshold: 40,
+    questionId: QuestionIdEnum.TermsConsent,
+  },
+
+  // ── EEO / voluntary disclosure ────────────────────────────────────────
+  {
+    patterns: ['sexual orientation', 'lgbtq'],
+    threshold: 40,
+    questionId: QuestionIdEnum.SexualOrientation,
+  },
+  {
+    patterns: ['gender'],
+    threshold: 50,
+    questionId: QuestionIdEnum.Gender,
+  },
+  {
+    patterns: ['pronouns', 'preferred pronouns'],
+    threshold: 35,
+    questionId: QuestionIdEnum.Pronouns,
+  },
+  {
+    patterns: ['date of birth', 'dob', 'birth date', 'birthday'],
+    threshold: 50,
+    questionId: QuestionIdEnum.DateOfBirth,
+  },
+  {
+    patterns: ['ethnicity', 'race', 'racial background'],
+    threshold: 40,
+    questionId: QuestionIdEnum.Ethnicity,
+  },
+  {
+    patterns: ['veteran', 'military service', 'armed forces'],
+    threshold: 40,
+    questionId: QuestionIdEnum.VeteranStatus,
+  },
+  {
+    patterns: ['disability', 'disabled', 'accommodation'],
+    threshold: 40,
+    questionId: QuestionIdEnum.DisabilityStatus,
+  },
+  {
+    patterns: ['marital status', 'marriage status'],
+    threshold: 40,
+    questionId: QuestionIdEnum.MaritalStatus,
   },
 
   // ── Location & address ────────────────────────────────────────────────
@@ -281,7 +421,12 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
     questionId: QuestionIdEnum.CountryOfResidence,
   },
   {
-    patterns: ['country', 'nation', 'which country'],
+    patterns: [
+      'select country',
+      'which country',
+      /^country$/,
+      /country(?!.*authorized)/,
+    ],
     threshold: 50,
     questionId: QuestionIdEnum.Country,
   },
@@ -291,12 +436,24 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
     questionId: QuestionIdEnum.Nationality,
   },
   {
-    patterns: ['city', 'town', 'municipality'],
+    patterns: [
+      'current location',
+      'current city',
+      'current city location',
+      'present location',
+      'where are you located',
+      'city you are based',
+    ],
+    threshold: 45,
+    questionId: QuestionIdEnum.CurrentLocation,
+  },
+  {
+    patterns: [/^city$/, 'town', 'municipality'],
     threshold: 50,
     questionId: QuestionIdEnum.City,
   },
   {
-    patterns: ['state', 'province', 'region', 'county'],
+    patterns: ['state province', 'state', 'province', 'county'],
     threshold: 50,
     questionId: QuestionIdEnum.State,
   },
@@ -373,137 +530,6 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
     questionId: QuestionIdEnum.WorkShift,
   },
 
-  // ── Work authorization & compliance ───────────────────────────────────
-  {
-    patterns: [
-      'legally authorized',
-      'authorized to work',
-      'work authorization',
-      'work eligibility',
-      'eligible to work',
-      'right to work',
-    ],
-    threshold: 5,
-    questionId: QuestionIdEnum.LegallyAuthorizedToWork,
-  },
-  {
-    patterns: [
-      'visa sponsorship',
-      'require sponsorship',
-      'need sponsorship',
-      'immigration sponsorship',
-      'work visa',
-    ],
-    threshold: 5,
-    questionId: QuestionIdEnum.VisaSponsorshipRequired,
-  },
-  {
-    patterns: ['work permit', 'permit expiry', 'visa expiry', 'visa status'],
-    threshold: 5,
-    questionId: QuestionIdEnum.VisaStatus,
-  },
-  {
-    patterns: [
-      'conflict of interest',
-      'financial interest',
-      'outside business interest',
-    ],
-    threshold: 5,
-    questionId: QuestionIdEnum.ConflictOfInterest,
-  },
-  {
-    patterns: [
-      'relative working',
-      'family member employed',
-      'know anyone at',
-      'employee referral relation',
-    ],
-    threshold: 5,
-    questionId: QuestionIdEnum.RelativeAtCompany,
-  },
-  {
-    patterns: [
-      'non-compete',
-      'non compete',
-      'restrictive covenant',
-      'bound by agreement',
-    ],
-    threshold: 5,
-    questionId: QuestionIdEnum.NonCompeteAgreement,
-  },
-  {
-    patterns: [
-      'background check',
-      'criminal record',
-      'felony',
-      'convicted',
-      'criminal history',
-    ],
-    threshold: 5,
-    questionId: QuestionIdEnum.CriminalRecord,
-  },
-  {
-    patterns: ['security clearance', 'government clearance'],
-    threshold: 5,
-    questionId: QuestionIdEnum.SecurityClearance,
-  },
-  {
-    patterns: [
-      'terms and conditions',
-      'privacy policy',
-      'consent',
-      'agree to',
-      'i confirm',
-      'i certify',
-      'declaration',
-      'accuracy of information',
-    ],
-    threshold: 5,
-    questionId: QuestionIdEnum.TermsConsent,
-  },
-
-  // ── EEO / voluntary disclosure ────────────────────────────────────────
-  {
-    patterns: ['gender', 'sex'],
-    threshold: 40,
-    questionId: QuestionIdEnum.Gender,
-  },
-  {
-    patterns: ['pronouns', 'preferred pronouns'],
-    threshold: 35,
-    questionId: QuestionIdEnum.Pronouns,
-  },
-  {
-    patterns: ['date of birth', 'dob', 'birth date', 'birthday'],
-    threshold: 50,
-    questionId: QuestionIdEnum.DateOfBirth,
-  },
-  {
-    patterns: ['ethnicity', 'race', 'racial background'],
-    threshold: 15,
-    questionId: QuestionIdEnum.Ethnicity,
-  },
-  {
-    patterns: ['veteran', 'military service', 'armed forces'],
-    threshold: 15,
-    questionId: QuestionIdEnum.VeteranStatus,
-  },
-  {
-    patterns: ['disability', 'disabled', 'accommodation'],
-    threshold: 15,
-    questionId: QuestionIdEnum.DisabilityStatus,
-  },
-  {
-    patterns: ['lgbtq', 'sexual orientation'],
-    threshold: 15,
-    questionId: QuestionIdEnum.SexualOrientation,
-  },
-  {
-    patterns: ['marital status', 'marriage status'],
-    threshold: 40,
-    questionId: QuestionIdEnum.MaritalStatus,
-  },
-
   // ── Education ─────────────────────────────────────────────────────────
   {
     patterns: [
@@ -570,7 +596,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'why are you looking for',
       'looking for a new job',
     ],
-    threshold: 10,
+    threshold: 40,
     questionId: QuestionIdEnum.ReasonForLeaving,
   },
   {
@@ -584,7 +610,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'different from other candidates',
       'makes you different',
     ],
-    threshold: 10,
+    threshold: 40,
     questionId: QuestionIdEnum.WhyHireYou,
   },
   {
@@ -604,7 +630,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'why this role',
       'why join',
     ],
-    threshold: 10,
+    threshold: 40,
     questionId: QuestionIdEnum.WhyApply,
   },
   {
@@ -612,6 +638,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'conflict with a teammate',
       'conflict with teammate',
       'conflict with a colleague',
+      'conflict you had with a colleague',
       'conflict with colleague',
       'disagree with your approach',
       "don't agree with your approach",
@@ -621,7 +648,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'resolve the conflict',
       'handle disagreement',
     ],
-    threshold: 10,
+    threshold: 40,
     questionId: QuestionIdEnum.ConflictResolution,
   },
   {
@@ -640,7 +667,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'how did you approach it',
       'difficult problem',
     ],
-    threshold: 10,
+    threshold: 40,
     questionId: QuestionIdEnum.Achievement,
   },
   {
@@ -657,7 +684,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'long term goals',
       'future goals',
     ],
-    threshold: 10,
+    threshold: 40,
     questionId: QuestionIdEnum.FiveYearGoals,
   },
   {
@@ -668,7 +695,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'source of application',
       'how did you find',
     ],
-    threshold: 10,
+    threshold: 40,
     questionId: QuestionIdEnum.ReferralSource,
   },
   {
@@ -678,7 +705,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'previous employee',
       'rehire',
     ],
-    threshold: 10,
+    threshold: 40,
     questionId: QuestionIdEnum.PreviousEmployee,
   },
   {
@@ -699,7 +726,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'notice period buyout',
       'pay notice buyout',
     ],
-    threshold: 10,
+    threshold: 40,
     questionId: QuestionIdEnum.NoticeBuyoutBond,
   },
 ];

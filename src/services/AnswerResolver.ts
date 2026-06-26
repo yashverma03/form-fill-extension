@@ -11,7 +11,7 @@ import { QuestionMatcher } from '../utils/matchQuestion';
 export class AnswerResolver {
   constructor(
     private readonly config: AnswerConfigEntry[],
-    private readonly answers: Record<QuestionIdEnum, string>,
+    private readonly answers: Partial<Record<QuestionIdEnum, string>>,
   ) {}
 
   /** Resolves an answer (or skip reason) for every extracted input. */
@@ -79,7 +79,7 @@ export class AnswerResolver {
     entry: AnswerConfigEntry,
     question: string,
   ): string | null {
-    let answer = this.answers[entry.questionId];
+    let answer = this.answers[entry.questionId] ?? '';
 
     if (entry.subPatterns && entry.subPatterns.length > 0) {
       for (const subPattern of entry.subPatterns) {
@@ -90,7 +90,7 @@ export class AnswerResolver {
             subPattern.patterns,
           )
         ) {
-          answer = this.answers[subPattern.questionId];
+          answer = this.answers[subPattern.questionId] ?? '';
           break;
         }
       }
