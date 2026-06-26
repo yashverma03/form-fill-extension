@@ -12,8 +12,7 @@
   --accent: #3b82f6;
   --accent-hover: #2563eb;
   --danger: #f87171;
-  --tag-config-fg: #6ee7b7;
-  --tag-config-bg: #064e3b;
+  --code-fg: #6ee7b7;
   --tag-extra-fg: #fcd34d;
   --tag-extra-bg: #78350f;
   --code-bg: #252a35;
@@ -63,7 +62,7 @@ code {
   font-size: 0.875em;
   background: var(--code-bg);
   border-radius: 4px;
-  color: var(--tag-config-fg);
+  color: var(--code-fg);
 }
 
 form {
@@ -200,11 +199,6 @@ textarea {
   text-transform: uppercase;
   letter-spacing: 0.03em;
   border-radius: 999px;
-}
-
-.tag--config {
-  color: var(--tag-config-fg);
-  background: var(--tag-config-bg);
 }
 
 .tag--extra {
