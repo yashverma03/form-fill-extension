@@ -8,10 +8,10 @@ Auto-fills job application forms using a config-driven matching engine.
 
 ```bash
 npm ci
-cp src/config/answers.config.example.ts src/config/answers.config.ts
+cp src/data/answers.data.example.ts src/data/answers.data.ts
 ```
 
-Edit `src/config/answers.config.ts` with your personal data. This file is gitignored and will not be committed.
+Edit `src/data/answers.data.ts` with your personal answers. This file is gitignored. Question patterns live in `src/config/answers.config.ts` (committed).
 
 ## Development
 

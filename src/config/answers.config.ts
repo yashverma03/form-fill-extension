@@ -1,45 +1,40 @@
+import { QuestionIdEnum } from '../enums/QuestionIdEnum';
 import type { AnswerConfigEntry } from '../interfaces/AnswerConfigEntry';
 
-/**
- * Example answer config — copy to answers.config.ts and fill in your data:
- *
- *   cp src/config/answers.config.example.ts src/config/answers.config.ts
- *
- * First matching entry wins; order entries by specificity.
- */
+/** Question-matching rules; first matching entry wins. Order entries by specificity. */
 export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
   // ── Identity (high priority, specific first) ──────────────────────────
   {
     patterns: ['first name', 'given name', 'forename', /^first$/],
     threshold: 55,
-    answer: 'Jane',
+    questionId: QuestionIdEnum.FirstName,
   },
   {
     patterns: ['last name', 'surname', 'family name', /^last$/],
     threshold: 55,
-    answer: 'Doe',
+    questionId: QuestionIdEnum.LastName,
   },
   {
     patterns: ['legal name', 'full name', 'name as per'],
     threshold: 45,
-    answer: 'Jane Doe',
+    questionId: QuestionIdEnum.FullName,
   },
   {
     patterns: ['preferred name', 'nickname', 'name you go by'],
     threshold: 40,
-    answer: 'Jane',
+    questionId: QuestionIdEnum.PreferredName,
   },
 
   // ── Contact ───────────────────────────────────────────────────────────
   {
     patterns: ['email', 'e-mail', 'email address', 'work email'],
     threshold: 55,
-    answer: 'jane@example.com',
+    questionId: QuestionIdEnum.Email,
   },
   {
     patterns: ['device type', 'mobile type', 'phone type', 'contact type'],
     threshold: 50,
-    answer: 'Mobile',
+    questionId: QuestionIdEnum.DeviceType,
   },
   {
     patterns: [
@@ -49,7 +44,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'best way to reach',
     ],
     threshold: 35,
-    answer: 'Email',
+    questionId: QuestionIdEnum.PreferredContact,
   },
   {
     patterns: [
@@ -67,7 +62,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       /^mobile$/,
     ],
     threshold: 50,
-    answer: '+1 555 0100',
+    questionId: QuestionIdEnum.Phone,
   },
 
   // ── Employment (current) ──────────────────────────────────────────────
@@ -80,7 +75,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'current role',
     ],
     threshold: 45,
-    answer: 'Engineer',
+    questionId: QuestionIdEnum.CurrentJobTitle,
   },
   {
     patterns: [
@@ -91,7 +86,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'company you work',
     ],
     threshold: 45,
-    answer: 'Acme',
+    questionId: QuestionIdEnum.CurrentCompany,
   },
   {
     patterns: [
@@ -102,7 +97,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'city you are based',
     ],
     threshold: 40,
-    answer: 'NYC',
+    questionId: QuestionIdEnum.CurrentLocation,
   },
   {
     patterns: [
@@ -114,7 +109,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       /years.*experience/,
     ],
     threshold: 45,
-    answer: '3',
+    questionId: QuestionIdEnum.YearsOfExperience,
   },
 
   // ── Compensation & availability ─────────────────────────────────────
@@ -129,9 +124,13 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
     ],
     threshold: 45,
     subPatterns: [
-      { patterns: ['lpa', 'lakhs', 'lakh'], threshold: 40, answer: '10' },
+      {
+        patterns: ['lpa', 'lakhs', 'lakh'],
+        threshold: 40,
+        questionId: QuestionIdEnum.CurrentCtcLpa,
+      },
     ],
-    answer: '10',
+    questionId: QuestionIdEnum.CurrentCtc,
   },
   {
     patterns: [
@@ -145,9 +144,13 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
     ],
     threshold: 45,
     subPatterns: [
-      { patterns: ['lpa', 'lakhs', 'lakh'], threshold: 40, answer: '15' },
+      {
+        patterns: ['lpa', 'lakhs', 'lakh'],
+        threshold: 40,
+        questionId: QuestionIdEnum.ExpectedCtcLpa,
+      },
     ],
-    answer: '15',
+    questionId: QuestionIdEnum.ExpectedCtc,
   },
   {
     patterns: [
@@ -178,14 +181,18 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
     ],
     threshold: 45,
     subPatterns: [
-      { patterns: ['lpa', 'lakhs', 'lakh'], threshold: 40, answer: '16' },
+      {
+        patterns: ['lpa', 'lakhs', 'lakh'],
+        threshold: 40,
+        questionId: QuestionIdEnum.CompetingOfferLpa,
+      },
     ],
-    answer: '16',
+    questionId: QuestionIdEnum.CompetingOfferCtc,
   },
   {
     patterns: ['salary negotiable', 'open to negotiation', 'negotiable'],
     threshold: 30,
-    answer: 'Yes',
+    questionId: QuestionIdEnum.SalaryNegotiable,
   },
   {
     patterns: [
@@ -195,7 +202,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       /notice.*period/,
     ],
     threshold: 45,
-    answer: '30',
+    questionId: QuestionIdEnum.NoticePeriod,
   },
   {
     patterns: [
@@ -207,19 +214,19 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'date available',
     ],
     threshold: 35,
-    answer: '30 days',
+    questionId: QuestionIdEnum.JoiningTime,
   },
 
   // ── Links & portfolio ─────────────────────────────────────────────────
   {
     patterns: ['linkedin', 'linkedin profile', 'linkedin url', 'linkedin link'],
     threshold: 60,
-    answer: 'https://linkedin.com/in/janedoe',
+    questionId: QuestionIdEnum.LinkedIn,
   },
   {
     patterns: ['github', 'github profile', 'github url', 'github link'],
     threshold: 60,
-    answer: 'https://github.com/janedoe',
+    questionId: QuestionIdEnum.GitHub,
   },
   {
     patterns: [
@@ -231,39 +238,39 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       /portfolio|website/,
     ],
     threshold: 45,
-    answer: 'https://jane.dev',
+    questionId: QuestionIdEnum.Portfolio,
   },
   {
     patterns: ['leetcode', 'hackerrank', 'codility', 'codechef', 'codeforces'],
     threshold: 55,
-    answer: 'https://leetcode.com/janedoe',
+    questionId: QuestionIdEnum.LeetCode,
   },
 
   // ── Location & address ────────────────────────────────────────────────
   {
     patterns: ['country of residence', 'country you live', 'residence country'],
     threshold: 35,
-    answer: 'USA',
+    questionId: QuestionIdEnum.CountryOfResidence,
   },
   {
     patterns: ['country', 'nation', 'which country'],
     threshold: 50,
-    answer: 'USA',
+    questionId: QuestionIdEnum.Country,
   },
   {
     patterns: ['nationality', 'citizenship', 'citizen of'],
     threshold: 35,
-    answer: 'American',
+    questionId: QuestionIdEnum.Nationality,
   },
   {
     patterns: ['city', 'town', 'municipality'],
     threshold: 50,
-    answer: 'NYC',
+    questionId: QuestionIdEnum.City,
   },
   {
     patterns: ['state', 'province', 'region', 'county'],
     threshold: 50,
-    answer: 'NY',
+    questionId: QuestionIdEnum.State,
   },
   {
     patterns: [
@@ -275,12 +282,12 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'apartment',
     ],
     threshold: 45,
-    answer: '1 Main St',
+    questionId: QuestionIdEnum.AddressLine1,
   },
   {
     patterns: ['address line 2', 'address 2', 'landmark', 'area', 'locality'],
     threshold: 45,
-    answer: 'Apt 2',
+    questionId: QuestionIdEnum.AddressLine2,
   },
   {
     patterns: [
@@ -292,7 +299,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'postcode',
     ],
     threshold: 50,
-    answer: '10001',
+    questionId: QuestionIdEnum.PinCode,
   },
   {
     patterns: [
@@ -302,7 +309,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'mailing address',
     ],
     threshold: 40,
-    answer: '1 Main St, NYC, NY 10001',
+    questionId: QuestionIdEnum.FullAddress,
   },
 
   // ── Work preferences ──────────────────────────────────────────────────
@@ -314,7 +321,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'relocation',
     ],
     threshold: 25,
-    answer: 'Yes',
+    questionId: QuestionIdEnum.WillingToRelocate,
   },
   {
     patterns: [
@@ -325,17 +332,17 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'contract',
     ],
     threshold: 40,
-    answer: 'Full-time',
+    questionId: QuestionIdEnum.EmploymentType,
   },
   {
     patterns: ['willing to travel', 'travel required', 'business travel'],
     threshold: 25,
-    answer: 'Yes',
+    questionId: QuestionIdEnum.WillingToTravel,
   },
   {
     patterns: ['shift', 'night shift', 'rotational shift', 'work shift'],
     threshold: 40,
-    answer: 'Day',
+    questionId: QuestionIdEnum.WorkShift,
   },
 
   // ── Work authorization & compliance ───────────────────────────────────
@@ -349,7 +356,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'right to work',
     ],
     threshold: 10,
-    answer: 'Yes',
+    questionId: QuestionIdEnum.LegallyAuthorizedToWork,
   },
   {
     patterns: [
@@ -360,12 +367,12 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'work visa',
     ],
     threshold: 10,
-    answer: 'No',
+    questionId: QuestionIdEnum.VisaSponsorshipRequired,
   },
   {
     patterns: ['work permit', 'permit expiry', 'visa expiry', 'visa status'],
     threshold: 10,
-    answer: 'N/A',
+    questionId: QuestionIdEnum.VisaStatus,
   },
   {
     patterns: [
@@ -374,7 +381,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'outside business interest',
     ],
     threshold: 10,
-    answer: 'No',
+    questionId: QuestionIdEnum.ConflictOfInterest,
   },
   {
     patterns: [
@@ -384,7 +391,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'employee referral relation',
     ],
     threshold: 10,
-    answer: 'No',
+    questionId: QuestionIdEnum.RelativeAtCompany,
   },
   {
     patterns: [
@@ -394,7 +401,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'bound by agreement',
     ],
     threshold: 10,
-    answer: 'No',
+    questionId: QuestionIdEnum.NonCompeteAgreement,
   },
   {
     patterns: [
@@ -405,12 +412,12 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'criminal history',
     ],
     threshold: 10,
-    answer: 'No',
+    questionId: QuestionIdEnum.CriminalRecord,
   },
   {
     patterns: ['security clearance', 'government clearance'],
     threshold: 10,
-    answer: 'No',
+    questionId: QuestionIdEnum.SecurityClearance,
   },
   {
     patterns: [
@@ -424,49 +431,49 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'accuracy of information',
     ],
     threshold: 10,
-    answer: 'Yes',
+    questionId: QuestionIdEnum.TermsConsent,
   },
 
   // ── EEO / voluntary disclosure ────────────────────────────────────────
   {
     patterns: ['gender', 'sex'],
     threshold: 40,
-    answer: 'Female',
+    questionId: QuestionIdEnum.Gender,
   },
   {
     patterns: ['pronouns', 'preferred pronouns'],
     threshold: 35,
-    answer: 'She/Her',
+    questionId: QuestionIdEnum.Pronouns,
   },
   {
     patterns: ['date of birth', 'dob', 'birth date', 'birthday'],
     threshold: 50,
-    answer: '01/01/1998',
+    questionId: QuestionIdEnum.DateOfBirth,
   },
   {
     patterns: ['ethnicity', 'race', 'racial background'],
     threshold: 15,
-    answer: 'Prefer not to say',
+    questionId: QuestionIdEnum.Ethnicity,
   },
   {
     patterns: ['veteran', 'military service', 'armed forces'],
     threshold: 15,
-    answer: 'No',
+    questionId: QuestionIdEnum.VeteranStatus,
   },
   {
     patterns: ['disability', 'disabled', 'accommodation'],
     threshold: 15,
-    answer: 'No',
+    questionId: QuestionIdEnum.DisabilityStatus,
   },
   {
     patterns: ['lgbtq', 'sexual orientation'],
     threshold: 15,
-    answer: 'Prefer not to say',
+    questionId: QuestionIdEnum.SexualOrientation,
   },
   {
     patterns: ['marital status', 'marriage status'],
     threshold: 40,
-    answer: 'Single',
+    questionId: QuestionIdEnum.MaritalStatus,
   },
 
   // ── Education ─────────────────────────────────────────────────────────
@@ -478,12 +485,12 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'qualification',
     ],
     threshold: 45,
-    answer: "Bachelor's",
+    questionId: QuestionIdEnum.HighestDegree,
   },
   {
     patterns: ['university', 'college', 'institution', 'school name'],
     threshold: 45,
-    answer: 'State U',
+    questionId: QuestionIdEnum.University,
   },
   {
     patterns: [
@@ -494,7 +501,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'degree in',
     ],
     threshold: 45,
-    answer: 'CS',
+    questionId: QuestionIdEnum.FieldOfStudy,
   },
   {
     patterns: [
@@ -504,19 +511,19 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'year completed',
     ],
     threshold: 45,
-    answer: '2020',
+    questionId: QuestionIdEnum.GraduationYear,
   },
   {
     patterns: ['gpa', 'cgpa', 'grade point'],
     threshold: 50,
-    answer: '3.8',
+    questionId: QuestionIdEnum.Gpa,
   },
 
   // ── Skills & languages ──────────────────────────────────────────────────
   {
     patterns: ['certification', 'certifications', 'professional certification'],
     threshold: 40,
-    answer: 'AWS',
+    questionId: QuestionIdEnum.Certification,
   },
 
   // ── Application meta ──────────────────────────────────────────────────
@@ -536,7 +543,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'looking for a new job',
     ],
     threshold: 10,
-    answer: 'Seeking growth.',
+    questionId: QuestionIdEnum.ReasonForLeaving,
   },
   {
     patterns: [
@@ -558,7 +565,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'why join',
     ],
     threshold: 10,
-    answer: 'Strong fit.',
+    questionId: QuestionIdEnum.WhyApply,
   },
   {
     patterns: [
@@ -575,7 +582,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'handle disagreement',
     ],
     threshold: 10,
-    answer: 'Discussed and aligned.',
+    questionId: QuestionIdEnum.ConflictResolution,
   },
   {
     patterns: [
@@ -594,7 +601,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'difficult problem',
     ],
     threshold: 10,
-    answer: 'Shipped key feature.',
+    questionId: QuestionIdEnum.Achievement,
   },
   {
     patterns: [
@@ -611,7 +618,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'future goals',
     ],
     threshold: 10,
-    answer: 'Senior engineer.',
+    questionId: QuestionIdEnum.FiveYearGoals,
   },
   {
     patterns: [
@@ -622,7 +629,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'how did you find',
     ],
     threshold: 10,
-    answer: 'Referral',
+    questionId: QuestionIdEnum.ReferralSource,
   },
   {
     patterns: [
@@ -632,11 +639,11 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'rehire',
     ],
     threshold: 10,
-    answer: 'No',
+    questionId: QuestionIdEnum.PreviousEmployee,
   },
   {
     patterns: ['bond', 'notice buyout', 'buy out notice'],
     threshold: 10,
-    answer: 'No',
+    questionId: QuestionIdEnum.NoticeBuyoutBond,
   },
 ];

@@ -1,3 +1,4 @@
+import type { QuestionIdEnum } from '../enums/QuestionIdEnum';
 import type { AnswerConfigEntry } from '../interfaces/AnswerConfigEntry';
 import type { ExtractedInput } from '../interfaces/ExtractedInput';
 import type { LogRequest } from '../interfaces/LogRequest';
@@ -8,7 +9,10 @@ import { QuestionMatcher } from '../utils/matchQuestion';
 
 /** Maps extracted form fields to config answers via fuzzy question matching. */
 export class AnswerResolver {
-  constructor(private readonly config: AnswerConfigEntry[]) {}
+  constructor(
+    private readonly config: AnswerConfigEntry[],
+    private readonly answers: Record<QuestionIdEnum, string>,
+  ) {}
 
   /** Resolves an answer (or skip reason) for every extracted input. */
   resolve(inputs: ExtractedInput[]): ResolvedPatch[] {
@@ -75,7 +79,7 @@ export class AnswerResolver {
     entry: AnswerConfigEntry,
     question: string,
   ): string | null {
-    let answer = entry.answer;
+    let answer = this.answers[entry.questionId];
 
     if (entry.subPatterns && entry.subPatterns.length > 0) {
       for (const subPattern of entry.subPatterns) {
@@ -86,7 +90,7 @@ export class AnswerResolver {
             subPattern.patterns,
           )
         ) {
-          answer = subPattern.answer;
+          answer = this.answers[subPattern.questionId];
           break;
         }
       }

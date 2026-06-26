@@ -118,11 +118,15 @@ form-fill-extension/
 │   ├── interfaces/              # Shared data shapes (see section below)
 │   ├── types/                   # Chrome message types
 │   ├── enums/
-│   │   └── InputTypeEnum.ts     # Normalized HTML input kinds
+│   │   ├── InputTypeEnum.ts     # Normalized HTML input kinds
+│   │   └── QuestionIdEnum.ts    # IDs linking pattern config to personal answers
 │   │
 │   ├── config/
-│   │   ├── answers.config.example.ts  # Committed template (copy to create local config)
-│   │   └── answers.config.ts          # User personal data — GITIGNORED
+│   │   └── answers.config.ts        # Question patterns + thresholds (committed)
+│   │
+│   ├── data/
+│   │   ├── answers.data.example.ts  # Example personal answers (committed template)
+│   │   └── answers.data.ts          # Personal answers — GITIGNORED
 │   │
 │   ├── form/
 │   │   ├── index.html           # Local test form (job application mock)
@@ -134,7 +138,7 @@ form-fill-extension/
     └── settings.json
 ```
 
-**Not in repo / generated:** `node_modules/`, `dist/` (after build), `src/config/answers.config.ts` (local only).
+**Not in repo / generated:** `node_modules/`, `dist/` (after build), `src/data/answers.data.ts` (local only).
 
 ---
 
@@ -170,7 +174,13 @@ Shared enumerations. `InputTypeEnum` is re-exported from `src/types/InputTypeEnu
 
 ### `src/config/`
 
-Answer database. `answers.config.example.ts` is the committed reference; users copy it to `answers.config.ts` and fill in personal data. **Never commit real personal data.**
+Question pattern config — `answers.config.ts` with patterns, thresholds, and `QuestionIdEnum` references (committed).
+
+### `src/data/`
+
+Personal answer values — `answers.data.ts` keyed by `QuestionIdEnum` (gitignored). Template: `answers.data.example.ts`.
+
+**Never commit real personal data.** Add patterns in `answers.config.ts`; add values in `src/data/answers.data.ts`.
 
 ### `src/form/`
 
@@ -204,7 +214,7 @@ Returns `ExtractedInput[]`.
 
 **File:** `src/services/AnswerResolver.ts`
 
-Takes `ExtractedInput[]` and `AnswerConfigEntry[]` (from `ANSWERS_CONFIG`). For each input:
+Takes `ExtractedInput[]`, `AnswerConfigEntry[]` (from `ANSWERS_CONFIG`), and `Record<QuestionIdEnum, string>` (from `ANSWERS_DATA`). For each input:
 
 1. Skip if `isAlreadyFilled` (non-empty text, select index > 0, checked radio/checkbox)
 2. Find first config entry where `QuestionMatcher.matches(label, threshold, patterns)`
@@ -256,8 +266,8 @@ Logs `{ request: LogRequest, response: string | null }` as JSON to `console.log`
 | File | Purpose |
 |------|---------|
 | `ExtractedInput.ts` | One scanned form field + metadata + DOM element reference |
-| `AnswerConfigEntry.ts` | Config rule: patterns, threshold, answer, optional subPatterns |
-| `SubPatternEntry.ts` | Narrower pattern set overriding parent answer |
+| `AnswerConfigEntry.ts` | Config rule: patterns, threshold, questionId, optional subPatterns |
+| `SubPatternEntry.ts` | Narrower pattern set overriding parent via questionId |
 | `Pattern.ts` | `string \| RegExp` |
 | `ResolvedPatch.ts` | Field + resolved answer or skip reason |
 | `SkippedReason.ts` | Union of skip causes |
@@ -278,18 +288,19 @@ Logs `{ request: LogRequest, response: string | null }` as JSON to `console.log`
 
 ## Answer Config
 
-**Template:** `src/config/answers.config.example.ts`  
-**Local file:** `src/config/answers.config.ts` (gitignored)
+**Patterns:** `src/config/answers.config.ts` (committed)  
+**Personal answers:** `src/data/answers.data.ts` (gitignored)  
+**Template:** `src/data/answers.data.example.ts`
 
 Each entry shape (`AnswerConfigEntry`):
 - `patterns` — strings and/or RegExp to match normalized label text
 - `threshold` — minimum match score (0–100)
-- `answer` — default value to fill
-- `subPatterns` (optional) — ordered overrides with their own patterns/threshold/answer
+- `questionId` — key into `src/data/answers.data.ts` (`QuestionIdEnum`)
+- `subPatterns` (optional) — ordered overrides with their own patterns/threshold/questionId
 
 **Ordering rule:** first match wins. Group entries by topic (identity, contact, work auth, etc.); put specific labels before broad ones (e.g. "first name" before "name").
 
-**Tuning workflow:** run extension on a form → read console logs from `Logger` → add/adjust patterns in `answers.config.ts` → rebuild/reload extension.
+**Tuning workflow:** run extension on a form → read console logs from `Logger` → add/adjust patterns in `answers.config.ts` and values in `src/data/answers.data.ts` → rebuild/reload extension.
 
 ---
 
@@ -307,8 +318,8 @@ Defined in `manifest.config.ts`:
 
 ```bash
 npm ci
-cp src/config/answers.config.example.ts src/config/answers.config.ts
-# edit answers.config.ts with personal data
+cp src/data/answers.data.example.ts src/data/answers.data.ts
+# edit src/data/answers.data.ts with personal answers
 
 npm run dev    # watch build → dist/
 npm run build  # production build
@@ -325,7 +336,7 @@ Test locally with `src/form/index.html` (open as file or via dev server).
 1. **Read before edit** — use this file to locate the right service; read that file for behavior and JSDoc.
 2. **Pipeline order** — extract → resolve → log → patch. New field types need changes in both `FormExtractor` and `FormPatcher` (and possibly `AnswerResolver.isAlreadyFilled`).
 3. **Matching changes** — prefer `utils/matchQuestion.ts` and `utils/findClosestOption.ts` over duplicating logic in services.
-4. **Config changes** — edit `answers.config.example.ts` for templates; never put real PII in committed files. User data belongs only in gitignored `answers.config.ts`.
+4. **Config changes** — edit `answers.config.ts` for patterns; edit `answers.data.example.ts` when adding new `QuestionIdEnum` values. Never put real PII in committed files. User data belongs only in gitignored `src/data/answers.data.ts`.
 5. **Messages** — if adding popup ↔ content communication, extend types in `src/types/` and handle in `src/content/index.ts` and `src/popup/Popup.tsx`.
 6. **Skip filled fields** — patching must remain non-destructive; do not overwrite user-entered values.
 7. **No tests directory yet** — manual testing via `src/form/` and live sites.
@@ -338,7 +349,7 @@ Test locally with `src/form/index.html` (open as file or via dev server).
 
 | Task | Primary files |
 |------|----------------|
-| Add a new answer category | `src/config/answers.config.example.ts` |
+| Add a new answer category | `src/config/answers.config.ts`, `src/enums/QuestionIdEnum.ts`, `src/data/answers.data.example.ts` |
 | Improve label detection | `src/services/FormExtractor.ts` |
 | Change matching sensitivity | `src/utils/matchQuestion.ts`, config `threshold` values |
 | Support new input type | `FormExtractor`, `FormPatcher`, `InputTypeEnum`, `AnswerResolver.isAlreadyFilled` |

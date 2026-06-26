@@ -1,3 +1,4 @@
+import type { QuestionIdEnum } from '../enums/QuestionIdEnum';
 import type { Pattern } from './Pattern';
 import type { SubPatternEntry } from './SubPatternEntry';
 
@@ -6,7 +7,7 @@ export interface AnswerConfigEntry {
   patterns: Pattern[];
   /** Minimum match score (0–100); first matching entry in config wins. */
   threshold: number;
-  /** Checked in order; first match overrides `answer`. */
+  /** Checked in order; first match overrides `questionId`. */
   subPatterns?: SubPatternEntry[];
-  answer: string;
+  questionId: QuestionIdEnum;
 }

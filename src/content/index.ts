@@ -1,4 +1,5 @@
 import { ANSWERS_CONFIG } from '../config/answers.config';
+import { ANSWERS_DATA } from '../data/answers.data';
 import { AnswerResolver } from '../services/AnswerResolver';
 import { FormExtractor } from '../services/FormExtractor';
 import { FormPatcher } from '../services/FormPatcher';
@@ -17,7 +18,7 @@ async function runFiller(): Promise<FillerResultMessage> {
     return { type: 'FILLER_RESULT', result: emptyResult };
   }
 
-  const resolver = new AnswerResolver(ANSWERS_CONFIG);
+  const resolver = new AnswerResolver(ANSWERS_CONFIG, ANSWERS_DATA);
   const resolved = resolver.resolve(inputs);
 
   for (const patch of resolved) {
