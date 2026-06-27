@@ -1,8 +1,15 @@
 import { partial_ratio, token_set_ratio } from 'fuzzball';
+import type { ExtractedInput } from '../interfaces/ExtractedInput';
 import type { Pattern } from '../interfaces/Pattern';
+import {
+  buildMatchText,
+  getStructuredMatchFields,
+} from './buildMatchText';
 import { TextNormalizer } from './normalizeText';
 
 const MIN_FUZZY_WORD_LENGTH = 3;
+/** Structured attributes (name, id, autocomplete) can match at a slightly lower bar. */
+const STRUCTURED_FIELD_THRESHOLD_CAP = 45;
 
 /** Scores how well a form question matches config patterns. */
 export class QuestionMatcher {
@@ -14,6 +21,27 @@ export class QuestionMatcher {
   ): boolean {
     for (const pattern of patterns) {
       if (QuestionMatcher.patternScore(question, pattern) >= threshold) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /** Matches against combined label/context text and individual attribute hints. */
+  static matchesInput(
+    input: ExtractedInput,
+    threshold: number,
+    patterns: Pattern[],
+  ): boolean {
+    const matchText = buildMatchText(input);
+    if (QuestionMatcher.matches(matchText, threshold, patterns)) {
+      return true;
+    }
+
+    const structuredThreshold = Math.min(threshold, STRUCTURED_FIELD_THRESHOLD_CAP);
+    for (const field of getStructuredMatchFields(input)) {
+      if (QuestionMatcher.matches(field, structuredThreshold, patterns)) {
         return true;
       }
     }

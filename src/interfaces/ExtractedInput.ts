@@ -11,4 +11,18 @@ export interface ExtractedInput {
   options: string[];
   /** Surrounding section/heading text for context. */
   contextText: string;
+  /** HTML name attribute, normalized for matching. */
+  name: string;
+  /** HTML id attribute, normalized for matching. */
+  id: string;
+  /** autocomplete attribute value. */
+  autocomplete: string;
+  /** aria-label when present. */
+  ariaLabel: string;
+  /** placeholder when present. */
+  placeholder: string;
+  /** title attribute when present. */
+  title: string;
+  /** Text from aria-describedby targets when present. */
+  ariaDescribedBy: string;
 }

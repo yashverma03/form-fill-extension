@@ -73,8 +73,18 @@ export class FormPatcher {
     }
   }
 
-  /** Sets value on empty text inputs and textareas. */
+  /** Sets value on empty text inputs, textareas, and contenteditable fields. */
   private patchTextInput(element: HTMLElement, answer: string): boolean {
+    if (element.isContentEditable) {
+      if ((element.textContent?.trim() ?? '') !== '') {
+        return false;
+      }
+
+      element.textContent = answer;
+      dispatchInputEvents(element);
+      return true;
+    }
+
     if (
       !(
         element instanceof HTMLInputElement ||

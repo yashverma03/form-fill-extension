@@ -5,18 +5,36 @@ import type { AnswerConfigEntry } from '../interfaces/AnswerConfigEntry';
 export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
   // ── Identity (high priority, specific first) ──────────────────────────
   {
-    patterns: ['first name', 'given name', 'forename', /^first$/], // ^first$ = label is exactly "first"
-    threshold: 55,
+    patterns: [
+      'first name',
+      'given name',
+      'forename',
+      'given-name',
+      'first_name',
+      'firstname',
+      'fname',
+      /^first$/,
+    ],
+    threshold: 50,
     questionId: QuestionIdEnum.FirstName,
   },
   {
-    patterns: ['middle name', 'middle initial', 'second name'],
-    threshold: 50,
+    patterns: ['middle name', 'middle initial', 'second name', 'middle_name'],
+    threshold: 45,
     questionId: QuestionIdEnum.MiddleName,
   },
   {
-    patterns: ['last name', 'surname', 'family name', /^last$/], // ^last$ = label is exactly "last"
-    threshold: 55,
+    patterns: [
+      'last name',
+      'surname',
+      'family name',
+      'family-name',
+      'last_name',
+      'lastname',
+      'lname',
+      /^last$/,
+    ],
+    threshold: 50,
     questionId: QuestionIdEnum.LastName,
   },
   {
@@ -32,8 +50,14 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
 
   // ── Contact ───────────────────────────────────────────────────────────
   {
-    patterns: ['email', 'e-mail', 'email address', 'work email'],
-    threshold: 55,
+    patterns: [
+      'email',
+      'e-mail',
+      'email address',
+      'work email',
+      /^email$/,
+    ],
+    threshold: 50,
     questionId: QuestionIdEnum.Email,
   },
   {
@@ -63,11 +87,14 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'whatsapp',
       'alternate phone',
       'secondary phone',
-      /phone\s*number/, // "phone" + optional spaces + "number"
-      /^phone$/, // label is exactly "phone"
-      /^mobile$/, // label is exactly "mobile"
+      'phone_number',
+      'mobile_number',
+      /phone\s*number/,
+      /^phone$/,
+      /^mobile$/,
+      /^tel$/,
     ],
-    threshold: 50,
+    threshold: 45,
     questionId: QuestionIdEnum.Phone,
   },
 

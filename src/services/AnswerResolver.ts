@@ -4,10 +4,10 @@ import type { ExtractedInput } from '../interfaces/ExtractedInput';
 import type { LogRequest } from '../interfaces/LogRequest';
 import type { ResolvedPatch } from '../interfaces/ResolvedPatch';
 import { InputTypeEnum } from '../enums/InputTypeEnum';
+import { buildMatchText } from '../utils/buildMatchText';
 import { isSelectEmpty, getFormRoot } from '../utils/domForm';
 import { ClosestOptionMatcher } from '../utils/findClosestOption';
 import { QuestionMatcher } from '../utils/matchQuestion';
-import { TextNormalizer } from '../utils/normalizeText';
 
 /** Maps extracted form fields to config answers via fuzzy question matching. */
 export class AnswerResolver {
@@ -23,10 +23,24 @@ export class AnswerResolver {
 
   /** Builds the log payload for a field (label text and options when present). */
   getLogRequest(input: ExtractedInput): LogRequest {
-    const request: LogRequest = { text: input.labelText };
+    const request: LogRequest = {
+      text: input.labelText,
+      matchText: buildMatchText(input),
+    };
     if (input.options.length > 0) {
       request.options = input.options;
     }
+
+    const attributes: LogRequest['attributes'] = {};
+    if (input.name) attributes.name = input.name;
+    if (input.id) attributes.id = input.id;
+    if (input.autocomplete) attributes.autocomplete = input.autocomplete;
+    if (input.ariaLabel) attributes.ariaLabel = input.ariaLabel;
+    if (input.placeholder) attributes.placeholder = input.placeholder;
+    if (Object.keys(attributes).length > 0) {
+      request.attributes = attributes;
+    }
+
     return request;
   }
 
@@ -41,7 +55,7 @@ export class AnswerResolver {
       };
     }
 
-    const question = this.buildQuestionText(input);
+    const question = buildMatchText(input);
     if (!question) {
       return {
         input,
@@ -51,7 +65,7 @@ export class AnswerResolver {
       };
     }
 
-    const match = this.findFirstMatch(question);
+    const match = this.findFirstMatch(input);
 
     if (!match) {
       return {
@@ -62,7 +76,7 @@ export class AnswerResolver {
       };
     }
 
-    const answer = this.resolveAnswer(input, match.entry, question);
+    const answer = this.resolveAnswer(input, match.entry);
 
     if (answer === null) {
       return {
@@ -80,21 +94,12 @@ export class AnswerResolver {
     };
   }
 
-  /** Combines label and section context for more reliable matching. */
-  private buildQuestionText(input: ExtractedInput): string {
-    const parts = [input.labelText, input.contextText].filter(
-      (part) => part.trim().length > 0,
-    );
-
-    return TextNormalizer.normalizeText(parts.join(' '));
-  }
-
   /** Returns the first config entry whose patterns meet the threshold (order matters). */
   private findFirstMatch(
-    question: string,
+    input: ExtractedInput,
   ): { entry: AnswerConfigEntry; index: number } | null {
     for (const [index, entry] of this.config.entries()) {
-      if (QuestionMatcher.matches(question, entry.threshold, entry.patterns)) {
+      if (QuestionMatcher.matchesInput(input, entry.threshold, entry.patterns)) {
         return { entry, index };
       }
     }
@@ -106,15 +111,14 @@ export class AnswerResolver {
   private resolveAnswer(
     input: ExtractedInput,
     entry: AnswerConfigEntry,
-    question: string,
   ): string | null {
     let questionId = entry.questionId;
 
     if (entry.subPatterns && entry.subPatterns.length > 0) {
       for (const subPattern of entry.subPatterns) {
         if (
-          QuestionMatcher.matches(
-            question,
+          QuestionMatcher.matchesInput(
+            input,
             subPattern.threshold,
             subPattern.patterns,
           )
@@ -187,6 +191,10 @@ export class AnswerResolver {
       element instanceof HTMLTextAreaElement
     ) {
       return element.value.trim() !== '';
+    }
+
+    if (element.isContentEditable) {
+      return (element.textContent?.trim() ?? '') !== '';
     }
 
     return input.currentValue.trim() !== '';

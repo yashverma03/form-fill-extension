@@ -1,5 +1,6 @@
 import type { ExtractedInput } from '../interfaces/ExtractedInput';
 import { InputTypeEnum } from '../enums/InputTypeEnum';
+import { normalizeAttributeText } from '../utils/buildMatchText';
 import {
   getFormRoot,
   isInteractable,
@@ -43,7 +44,7 @@ export class FormExtractor {
         ? queryFillableElements(document)
         : Array.from(
             (root as HTMLElement).querySelectorAll<HTMLElement>(
-              'input, select, textarea',
+              'input, select, textarea, [role="textbox"], [role="combobox"], [role="searchbox"], [contenteditable="true"], [contenteditable=""]',
             ),
           );
 
@@ -101,6 +102,7 @@ export class FormExtractor {
     const inputType = this.resolveInputType(element);
     const options = this.resolveOptions(element);
     const currentValue = this.resolveCurrentValue(element);
+    const metadata = this.resolveAttributeMetadata(element);
 
     return {
       element,
@@ -109,7 +111,53 @@ export class FormExtractor {
       currentValue,
       options,
       contextText,
+      ...metadata,
     };
+  }
+
+  /** Captures name, id, autocomplete, aria, and related attribute hints. */
+  private resolveAttributeMetadata(
+    element: HTMLElement,
+  ): Pick<
+    ExtractedInput,
+    | 'name'
+    | 'id'
+    | 'autocomplete'
+    | 'ariaLabel'
+    | 'placeholder'
+    | 'title'
+    | 'ariaDescribedBy'
+  > {
+    const placeholder =
+      element instanceof HTMLInputElement ||
+      element instanceof HTMLTextAreaElement
+        ? normalizeAttributeText(element.getAttribute('placeholder'))
+        : '';
+
+    return {
+      name: normalizeAttributeText(element.getAttribute('name')),
+      id: normalizeAttributeText(element.getAttribute('id')),
+      autocomplete: normalizeAttributeText(element.getAttribute('autocomplete')),
+      ariaLabel: normalizeAttributeText(element.getAttribute('aria-label')),
+      placeholder,
+      title: normalizeAttributeText(element.getAttribute('title')),
+      ariaDescribedBy: this.resolveDescribedByText(element),
+    };
+  }
+
+  /** Resolves help text referenced by aria-describedby. */
+  private resolveDescribedByText(element: HTMLElement): string {
+    const describedBy = element.getAttribute('aria-describedby');
+    if (!describedBy) {
+      return '';
+    }
+
+    const text = describedBy
+      .split(/\s+/)
+      .map((refId) => document.getElementById(refId)?.textContent ?? '')
+      .join(' ');
+
+    return text.trim() ? this.cleanLabelText(text) : '';
   }
 
   /** Resolves question text via label, aria, placeholder, siblings, or name. */
@@ -117,6 +165,11 @@ export class FormExtractor {
     const fieldLabel = this.resolveFieldContainerLabel(element);
     if (fieldLabel) {
       return fieldLabel;
+    }
+
+    const parentLabel = this.resolveParentLabel(element);
+    if (parentLabel) {
+      return parentLabel;
     }
 
     const groupLabel = this.resolveGroupLabel(element);
@@ -161,6 +214,11 @@ export class FormExtractor {
       }
     }
 
+    const describedBy = this.resolveDescribedByText(element);
+    if (describedBy) {
+      return describedBy;
+    }
+
     const title = element.getAttribute('title');
     if (title) {
       return TextNormalizer.normalizeText(title);
@@ -178,10 +236,32 @@ export class FormExtractor {
 
     const name = element.getAttribute('name');
     if (name) {
-      return TextNormalizer.normalizeText(name.replace(/[_-]+/g, ' ')); // snake_case / kebab-case → words
+      return normalizeAttributeText(name);
     }
 
     return '';
+  }
+
+  /** Label text when the control is wrapped in a parent label element. */
+  private resolveParentLabel(element: HTMLElement): string {
+    const parentLabel = element.closest('label');
+    if (!parentLabel?.textContent?.trim()) {
+      return '';
+    }
+
+    if (
+      element instanceof HTMLInputElement &&
+      (element.type === 'radio' || element.type === 'checkbox')
+    ) {
+      const choiceInputs = parentLabel.querySelectorAll(
+        'input[type="radio"], input[type="checkbox"]',
+      );
+      if (choiceInputs.length > 1) {
+        return '';
+      }
+    }
+
+    return this.cleanLabelText(parentLabel.textContent);
   }
 
   /** Question label from the enclosing field container (sibling label, not option label). */
@@ -330,6 +410,10 @@ export class FormExtractor {
       return InputTypeEnum.Textarea;
     }
 
+    if (element.isContentEditable) {
+      return InputTypeEnum.Textarea;
+    }
+
     if (element instanceof HTMLInputElement) {
       switch (element.type) {
         case 'email':
@@ -344,9 +428,22 @@ export class FormExtractor {
           return InputTypeEnum.Radio;
         case 'checkbox':
           return InputTypeEnum.Checkbox;
+        case 'search':
+          return InputTypeEnum.Text;
+        case 'date':
+        case 'datetime-local':
+        case 'month':
+        case 'week':
+        case 'time':
+          return InputTypeEnum.Text;
         default:
           return InputTypeEnum.Text;
       }
+    }
+
+    const role = element.getAttribute('role');
+    if (role === 'combobox') {
+      return InputTypeEnum.Select;
     }
 
     return InputTypeEnum.Text;
@@ -428,6 +525,10 @@ export class FormExtractor {
       return element.value;
     }
 
-    return '';
+    if (element.isContentEditable) {
+      return element.textContent?.trim() ?? '';
+    }
+
+    return element.textContent?.trim() ?? '';
   }
 }

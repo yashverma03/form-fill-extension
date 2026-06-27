@@ -109,15 +109,25 @@ export function dispatchInputEvents(element: HTMLElement): void {
   element.dispatchEvent(new Event('blur', { bubbles: true }));
 }
 
+const FILLABLE_SELECTOR = [
+  'input',
+  'select',
+  'textarea',
+  '[role="textbox"]',
+  '[role="combobox"]',
+  '[role="searchbox"]',
+  '[contenteditable="true"]',
+  '[contenteditable=""]',
+].join(', ');
+
 /** Collects fillable controls including those inside open shadow roots. */
 export function queryFillableElements(
   root: Document | HTMLElement | ShadowRoot = document,
 ): HTMLElement[] {
   const results: HTMLElement[] = [];
-  const selector = 'input, select, textarea';
 
   results.push(
-    ...Array.from(root.querySelectorAll<HTMLElement>(selector)),
+    ...Array.from(root.querySelectorAll<HTMLElement>(FILLABLE_SELECTOR)),
   );
 
   const hosts =
