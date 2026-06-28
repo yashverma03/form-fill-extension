@@ -1,7 +1,8 @@
 import type { ExtractedInput } from '../interfaces/ExtractedInput';
 import { InputTypeEnum } from '../enums/InputTypeEnum';
-import { normalizeAttributeText } from '../utils/buildMatchText';
+import { collectQuestionHints } from '../utils/collectQuestionHints';
 import {
+  FILLABLE_SELECTOR,
   getFormRoot,
   isInteractable,
   isSelectEmpty,
@@ -19,22 +20,6 @@ const SKIP_INPUT_TYPES = new Set([
   'file',
 ]);
 
-const FIELD_CONTAINER_SELECTOR = [
-  '.field',
-  '.field-row',
-  '.form-group',
-  '.form-field',
-  '.input-group',
-  '.question',
-  '.form-item',
-  'fieldset',
-  '[class*="field"]',
-  '[class*="FormField"]',
-  '[class*="form-group"]',
-  '[class*="form-field"]',
-  '[class*="question"]',
-].join(', ');
-
 /** Walks the DOM and builds structured metadata for each visible, fillable control. */
 export class FormExtractor {
   /** Collects unique eligible inputs under `root`, defaulting to the document. */
@@ -43,9 +28,7 @@ export class FormExtractor {
       root === document
         ? queryFillableElements(document)
         : Array.from(
-            (root as HTMLElement).querySelectorAll<HTMLElement>(
-              'input, select, textarea, [role="textbox"], [role="combobox"], [role="searchbox"], [contenteditable="true"], [contenteditable=""]',
-            ),
+            (root as HTMLElement).querySelectorAll<HTMLElement>(FILLABLE_SELECTOR),
           );
 
     const seen = new Set<HTMLElement>();
@@ -74,7 +57,6 @@ export class FormExtractor {
     return results;
   }
 
-  /** One representative control per radio group within the same form. */
   private radioGroupKey(element: HTMLInputElement): string | null {
     if (element.type !== 'radio' || !element.name) {
       return null;
@@ -84,7 +66,6 @@ export class FormExtractor {
     return `${formId}:radio:${element.name}`;
   }
 
-  /** Filters disabled, hidden, and non-interactive elements. */
   private isEligible(element: HTMLElement): boolean {
     if (element instanceof HTMLInputElement) {
       if (SKIP_INPUT_TYPES.has(element.type)) {
@@ -95,312 +76,19 @@ export class FormExtractor {
     return isInteractable(element);
   }
 
-  /** Assembles label, type, options, value, and surrounding context for one element. */
   private toExtractedInput(element: HTMLElement): ExtractedInput {
-    const labelText = this.resolveLabelText(element);
-    const contextText = this.resolveContextText(element);
-    const inputType = this.resolveInputType(element);
-    const options = this.resolveOptions(element);
-    const currentValue = this.resolveCurrentValue(element);
-    const metadata = this.resolveAttributeMetadata(element);
+    const questionHints = collectQuestionHints(element);
 
     return {
       element,
-      labelText,
-      inputType,
-      currentValue,
-      options,
-      contextText,
-      ...metadata,
+      labelText: questionHints[0] ?? '',
+      questionHints,
+      inputType: this.resolveInputType(element),
+      currentValue: this.resolveCurrentValue(element),
+      options: this.resolveOptions(element),
     };
   }
 
-  /** Captures name, id, autocomplete, aria, and related attribute hints. */
-  private resolveAttributeMetadata(
-    element: HTMLElement,
-  ): Pick<
-    ExtractedInput,
-    | 'name'
-    | 'id'
-    | 'autocomplete'
-    | 'ariaLabel'
-    | 'placeholder'
-    | 'title'
-    | 'ariaDescribedBy'
-  > {
-    const placeholder =
-      element instanceof HTMLInputElement ||
-      element instanceof HTMLTextAreaElement
-        ? normalizeAttributeText(element.getAttribute('placeholder'))
-        : '';
-
-    return {
-      name: normalizeAttributeText(element.getAttribute('name')),
-      id: normalizeAttributeText(element.getAttribute('id')),
-      autocomplete: normalizeAttributeText(element.getAttribute('autocomplete')),
-      ariaLabel: normalizeAttributeText(element.getAttribute('aria-label')),
-      placeholder,
-      title: normalizeAttributeText(element.getAttribute('title')),
-      ariaDescribedBy: this.resolveDescribedByText(element),
-    };
-  }
-
-  /** Resolves help text referenced by aria-describedby. */
-  private resolveDescribedByText(element: HTMLElement): string {
-    const describedBy = element.getAttribute('aria-describedby');
-    if (!describedBy) {
-      return '';
-    }
-
-    const text = describedBy
-      .split(/\s+/)
-      .map((refId) => document.getElementById(refId)?.textContent ?? '')
-      .join(' ');
-
-    return text.trim() ? this.cleanLabelText(text) : '';
-  }
-
-  /** Resolves question text via label, aria, placeholder, siblings, or name. */
-  private resolveLabelText(element: HTMLElement): string {
-    const fieldLabel = this.resolveFieldContainerLabel(element);
-    if (fieldLabel) {
-      return fieldLabel;
-    }
-
-    const parentLabel = this.resolveParentLabel(element);
-    if (parentLabel) {
-      return parentLabel;
-    }
-
-    const groupLabel = this.resolveGroupLabel(element);
-    if (groupLabel) {
-      return groupLabel;
-    }
-
-    const tableLabel = this.resolveTableLabel(element);
-    if (tableLabel) {
-      return tableLabel;
-    }
-
-    const siblingLabel = this.resolveSiblingLabel(element);
-    if (siblingLabel) {
-      return siblingLabel;
-    }
-
-    const id = element.getAttribute('id');
-
-    if (id) {
-      const label = document.querySelector<HTMLLabelElement>(
-        `label[for="${CSS.escape(id)}"]`,
-      );
-      if (label?.textContent) {
-        return this.cleanLabelText(label.textContent);
-      }
-    }
-
-    const ariaLabel = element.getAttribute('aria-label');
-    if (ariaLabel) {
-      return TextNormalizer.normalizeText(ariaLabel);
-    }
-
-    const labelledBy = element.getAttribute('aria-labelledby');
-    if (labelledBy) {
-      const text = labelledBy
-        .split(/\s+/) // aria-labelledby may list multiple id refs
-        .map((refId) => document.getElementById(refId)?.textContent ?? '')
-        .join(' ');
-      if (text.trim()) {
-        return this.cleanLabelText(text);
-      }
-    }
-
-    const describedBy = this.resolveDescribedByText(element);
-    if (describedBy) {
-      return describedBy;
-    }
-
-    const title = element.getAttribute('title');
-    if (title) {
-      return TextNormalizer.normalizeText(title);
-    }
-
-    if (
-      element instanceof HTMLInputElement ||
-      element instanceof HTMLTextAreaElement
-    ) {
-      const placeholder = element.getAttribute('placeholder');
-      if (placeholder) {
-        return TextNormalizer.normalizeText(placeholder);
-      }
-    }
-
-    const name = element.getAttribute('name');
-    if (name) {
-      return normalizeAttributeText(name);
-    }
-
-    return '';
-  }
-
-  /** Label text when the control is wrapped in a parent label element. */
-  private resolveParentLabel(element: HTMLElement): string {
-    const parentLabel = element.closest('label');
-    if (!parentLabel?.textContent?.trim()) {
-      return '';
-    }
-
-    if (
-      element instanceof HTMLInputElement &&
-      (element.type === 'radio' || element.type === 'checkbox')
-    ) {
-      const choiceInputs = parentLabel.querySelectorAll(
-        'input[type="radio"], input[type="checkbox"]',
-      );
-      if (choiceInputs.length > 1) {
-        return '';
-      }
-    }
-
-    return this.cleanLabelText(parentLabel.textContent);
-  }
-
-  /** Question label from the enclosing field container (sibling label, not option label). */
-  private resolveFieldContainerLabel(element: HTMLElement): string {
-    const field = element.closest(FIELD_CONTAINER_SELECTOR);
-    if (!field) {
-      return '';
-    }
-
-    if (field instanceof HTMLFieldSetElement) {
-      const legend = field.querySelector(':scope > legend');
-      if (legend?.textContent) {
-        return this.cleanLabelText(legend.textContent);
-      }
-    }
-
-    for (const label of field.querySelectorAll<HTMLLabelElement>(
-      ':scope > label',
-    )) {
-      if (label.contains(element)) {
-        continue;
-      }
-
-      const text = this.cleanLabelText(label.textContent ?? '');
-      if (text) {
-        return text;
-      }
-    }
-
-    const id = element.getAttribute('id');
-    if (id) {
-      const directLabel = field.querySelector<HTMLLabelElement>(
-        `label[for="${CSS.escape(id)}"]`,
-      );
-      if (directLabel?.textContent) {
-        return this.cleanLabelText(directLabel.textContent);
-      }
-    }
-
-    return '';
-  }
-
-  /** aria-label / aria-labelledby on radio or checkbox groups. */
-  private resolveGroupLabel(element: HTMLElement): string {
-    const group = element.closest('[role="radiogroup"], [role="group"]');
-    if (!group) {
-      return '';
-    }
-
-    const ariaLabel = group.getAttribute('aria-label');
-    if (ariaLabel) {
-      return TextNormalizer.normalizeText(ariaLabel);
-    }
-
-    const labelledBy = group.getAttribute('aria-labelledby');
-    if (labelledBy) {
-      const text = labelledBy
-        .split(/\s+/) // aria-labelledby may list multiple id refs
-        .map((refId) => document.getElementById(refId)?.textContent ?? '')
-        .join(' ');
-      if (text.trim()) {
-        return this.cleanLabelText(text);
-      }
-    }
-
-    return '';
-  }
-
-  /** Label from a table header cell in the same row. */
-  private resolveTableLabel(element: HTMLElement): string {
-    const cell = element.closest('td, th');
-    if (!cell) {
-      return '';
-    }
-
-    const row = cell.closest('tr');
-    const header = row?.querySelector('th');
-    if (header?.textContent) {
-      return this.cleanLabelText(header.textContent);
-    }
-
-    return '';
-  }
-
-  /** Label element immediately preceding the control. */
-  private resolveSiblingLabel(element: HTMLElement): string {
-    let sibling = element.previousElementSibling;
-    while (sibling) {
-      if (sibling instanceof HTMLLabelElement && sibling.textContent?.trim()) {
-        return this.cleanLabelText(sibling.textContent);
-      }
-
-      if (sibling.textContent?.trim()) {
-        break;
-      }
-
-      sibling = sibling.previousElementSibling;
-    }
-
-    const parent = element.parentElement;
-    if (!parent) {
-      return '';
-    }
-
-    sibling = parent.previousElementSibling;
-    if (sibling instanceof HTMLLabelElement && sibling.textContent?.trim()) {
-      return this.cleanLabelText(sibling.textContent);
-    }
-
-    return '';
-  }
-
-  /** Strips dev tags and normalizes label copy. */
-  private cleanLabelText(text: string): string {
-    return TextNormalizer.normalizeText(
-      text
-        .replace(/\bconfig\b/gi, '') // remove test-form "config" tag word
-        .replace(/\bextra\b/gi, ''), // remove test-form "extra" tag word
-    );
-  }
-
-  /** Gathers heading and container text for disambiguating similar labels. */
-  private resolveContextText(element: HTMLElement): string {
-    const container =
-      element.closest('fieldset, section, form, div, li, tr') ??
-      element.parentElement;
-    if (!container) {
-      return '';
-    }
-
-    const heading = container.querySelector(
-      'h1, h2, h3, h4, h5, h6, legend',
-    );
-    const headingText = heading?.textContent?.trim() ?? '';
-
-    return TextNormalizer.normalizeText(headingText);
-  }
-
-  /** Maps HTML element to the extension's input-type enum. */
   private resolveInputType(element: HTMLElement): InputTypeEnum {
     if (element instanceof HTMLSelectElement) {
       return InputTypeEnum.Select;
@@ -428,14 +116,6 @@ export class FormExtractor {
           return InputTypeEnum.Radio;
         case 'checkbox':
           return InputTypeEnum.Checkbox;
-        case 'search':
-          return InputTypeEnum.Text;
-        case 'date':
-        case 'datetime-local':
-        case 'month':
-        case 'week':
-        case 'time':
-          return InputTypeEnum.Text;
         default:
           return InputTypeEnum.Text;
       }
@@ -449,7 +129,6 @@ export class FormExtractor {
     return InputTypeEnum.Text;
   }
 
-  /** Lists option labels for selects and radio/checkbox groups. */
   private resolveOptions(element: HTMLElement): string[] {
     if (element instanceof HTMLSelectElement) {
       return Array.from(element.options).map((option) =>
@@ -499,13 +178,12 @@ export class FormExtractor {
 
     const parentLabel = input.closest('label');
     if (parentLabel?.textContent) {
-      return this.cleanLabelText(parentLabel.textContent);
+      return TextNormalizer.normalizeText(parentLabel.textContent);
     }
 
     return TextNormalizer.normalizeText(input.value);
   }
 
-  /** Reads the current displayed or stored value for the control. */
   private resolveCurrentValue(element: HTMLElement): string {
     if (element instanceof HTMLSelectElement) {
       if (isSelectEmpty(element)) {

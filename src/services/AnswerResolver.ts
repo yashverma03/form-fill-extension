@@ -4,7 +4,6 @@ import type { ExtractedInput } from '../interfaces/ExtractedInput';
 import type { LogRequest } from '../interfaces/LogRequest';
 import type { ResolvedPatch } from '../interfaces/ResolvedPatch';
 import { InputTypeEnum } from '../enums/InputTypeEnum';
-import { buildMatchText } from '../utils/buildMatchText';
 import { isSelectEmpty, getFormRoot } from '../utils/domForm';
 import { ClosestOptionMatcher } from '../utils/findClosestOption';
 import { QuestionMatcher } from '../utils/matchQuestion';
@@ -16,35 +15,18 @@ export class AnswerResolver {
     private readonly answers: Partial<Record<QuestionIdEnum, string>>,
   ) {}
 
-  /** Resolves an answer (or skip reason) for every extracted input. */
   resolve(inputs: ExtractedInput[]): ResolvedPatch[] {
     return inputs.map((input) => this.resolveInput(input));
   }
 
-  /** Builds the log payload for a field (label text and options when present). */
   getLogRequest(input: ExtractedInput): LogRequest {
-    const request: LogRequest = {
+    return {
       text: input.labelText,
-      matchText: buildMatchText(input),
+      hints: input.questionHints,
+      ...(input.options.length > 0 ? { options: input.options } : {}),
     };
-    if (input.options.length > 0) {
-      request.options = input.options;
-    }
-
-    const attributes: LogRequest['attributes'] = {};
-    if (input.name) attributes.name = input.name;
-    if (input.id) attributes.id = input.id;
-    if (input.autocomplete) attributes.autocomplete = input.autocomplete;
-    if (input.ariaLabel) attributes.ariaLabel = input.ariaLabel;
-    if (input.placeholder) attributes.placeholder = input.placeholder;
-    if (Object.keys(attributes).length > 0) {
-      request.attributes = attributes;
-    }
-
-    return request;
   }
 
-  /** Skips filled fields, then matches config and resolves the final answer. */
   private resolveInput(input: ExtractedInput): ResolvedPatch {
     if (this.isAlreadyFilled(input)) {
       return {
@@ -55,8 +37,7 @@ export class AnswerResolver {
       };
     }
 
-    const question = buildMatchText(input);
-    if (!question) {
+    if (input.questionHints.length === 0) {
       return {
         input,
         answer: null,
@@ -65,8 +46,7 @@ export class AnswerResolver {
       };
     }
 
-    const match = this.findFirstMatch(input);
-
+    const match = this.findFirstMatch(input.questionHints);
     if (!match) {
       return {
         input,
@@ -77,7 +57,6 @@ export class AnswerResolver {
     }
 
     const answer = this.resolveAnswer(input, match.entry);
-
     if (answer === null) {
       return {
         input,
@@ -94,12 +73,12 @@ export class AnswerResolver {
     };
   }
 
-  /** Returns the first config entry whose patterns meet the threshold (order matters). */
+  /** First config entry where any hint matches a pattern. */
   private findFirstMatch(
-    input: ExtractedInput,
+    hints: string[],
   ): { entry: AnswerConfigEntry; index: number } | null {
     for (const [index, entry] of this.config.entries()) {
-      if (QuestionMatcher.matchesInput(input, entry.threshold, entry.patterns)) {
+      if (QuestionMatcher.matchesHints(hints, entry.threshold, entry.patterns)) {
         return { entry, index };
       }
     }
@@ -107,7 +86,6 @@ export class AnswerResolver {
     return null;
   }
 
-  /** Applies sub-patterns for overrides, then snaps the answer to the closest option. */
   private resolveAnswer(
     input: ExtractedInput,
     entry: AnswerConfigEntry,
@@ -117,8 +95,8 @@ export class AnswerResolver {
     if (entry.subPatterns && entry.subPatterns.length > 0) {
       for (const subPattern of entry.subPatterns) {
         if (
-          QuestionMatcher.matchesInput(
-            input,
+          QuestionMatcher.matchesHints(
+            input.questionHints,
             subPattern.threshold,
             subPattern.patterns,
           )
@@ -141,7 +119,6 @@ export class AnswerResolver {
     return ClosestOptionMatcher.find(input.options, answer);
   }
 
-  /** Returns a configured answer only when explicitly set and non-empty. */
   private getConfiguredAnswer(questionId: QuestionIdEnum): string | null {
     const answer = this.answers[questionId];
     if (answer === undefined || answer.trim() === '') {
@@ -151,7 +128,6 @@ export class AnswerResolver {
     return answer;
   }
 
-  /** Detects existing user input per control type (select index, checked state, value). */
   private isAlreadyFilled(input: ExtractedInput): boolean {
     const { element, inputType } = input;
 

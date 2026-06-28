@@ -120,6 +120,8 @@ const FILLABLE_SELECTOR = [
   '[contenteditable=""]',
 ].join(', ');
 
+export { FILLABLE_SELECTOR };
+
 /** Collects fillable controls including those inside open shadow roots. */
 export function queryFillableElements(
   root: Document | HTMLElement | ShadowRoot = document,
