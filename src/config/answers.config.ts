@@ -50,13 +50,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
 
   // ── Contact ───────────────────────────────────────────────────────────
   {
-    patterns: [
-      'email',
-      'e-mail',
-      'email address',
-      'work email',
-      /^email$/,
-    ],
+    patterns: ['email', 'e-mail', 'email address', 'work email', /^email$/],
     threshold: 50,
     questionId: QuestionIdEnum.Email,
   },
@@ -64,6 +58,20 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
     patterns: ['device type', 'mobile type', 'phone type', 'contact type'],
     threshold: 50,
     questionId: QuestionIdEnum.DeviceType,
+  },
+  {
+    patterns: [
+      'phone extension',
+      'phone ext',
+      'extension number',
+      'phone_extension',
+      'phone_ext',
+      'phone extension number',
+      'phone number extension',
+      /^ext$/,
+    ],
+    threshold: 60,
+    questionId: QuestionIdEnum.PhoneExtension,
   },
   {
     patterns: [
@@ -241,7 +249,12 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
     questionId: QuestionIdEnum.NoticePeriodNegotiable,
   },
   {
-    patterns: ['salary negotiable', 'open to negotiation', 'ctc negotiable', 'compensation negotiable'],
+    patterns: [
+      'salary negotiable',
+      'open to negotiation',
+      'ctc negotiable',
+      'compensation negotiable',
+    ],
     threshold: 30,
     questionId: QuestionIdEnum.SalaryNegotiable,
   },
@@ -257,11 +270,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
     questionId: QuestionIdEnum.NoticePeriod,
   },
   {
-    patterns: [
-      'when can you join',
-      'joining time',
-      'available to start',
-    ],
+    patterns: ['when can you join', 'joining time', 'available to start'],
     threshold: 35,
     questionId: QuestionIdEnum.JoiningTime,
   },
@@ -299,7 +308,14 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
     questionId: QuestionIdEnum.Portfolio,
   },
   {
-    patterns: ['leetcode', 'hackerrank', 'codility', 'codechef', 'codeforces', 'geeksforgeeks'],
+    patterns: [
+      'leetcode',
+      'hackerrank',
+      'codility',
+      'codechef',
+      'codeforces',
+      'geeksforgeeks',
+    ],
     threshold: 55,
     questionId: QuestionIdEnum.LeetCode,
   },

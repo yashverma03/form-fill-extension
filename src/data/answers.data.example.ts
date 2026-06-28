@@ -13,6 +13,7 @@ export const ANSWERS_DATA: Record<QuestionIdEnum, string> = {
   [QuestionIdEnum.MiddleName]: '',
   [QuestionIdEnum.Email]: 'john.doe@example.com',
   [QuestionIdEnum.DeviceType]: 'Mobile',
+  [QuestionIdEnum.PhoneExtension]: '',
   [QuestionIdEnum.PreferredContact]: 'Email',
   [QuestionIdEnum.Phone]: '+1 555 0100',
   [QuestionIdEnum.CurrentJobTitle]: 'Engineer',

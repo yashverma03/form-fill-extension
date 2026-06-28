@@ -10,6 +10,7 @@ export enum QuestionIdEnum {
   // ── Contact ───────────────────────────────────────────────────────────
   Email = 'Email',
   DeviceType = 'DeviceType',
+  PhoneExtension = 'PhoneExtension',
   PreferredContact = 'PreferredContact',
   Phone = 'Phone',
 
