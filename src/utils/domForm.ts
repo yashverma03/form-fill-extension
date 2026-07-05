@@ -102,11 +102,31 @@ export function setNativeSelectValue(
   descriptor?.set?.call(select, value);
 }
 
-/** Fires events frameworks listen to after programmatic updates. */
+/**
+ * Fires events frameworks listen to after programmatic updates, wrapped in a
+ * real focus/blur cycle so form libraries (Formik, React Hook Form, Angular,
+ * Vue) mark the field as "touched" the same way they would for a human edit.
+ */
 export function dispatchInputEvents(element: HTMLElement): void {
+  const focusable =
+    element instanceof HTMLElement && typeof element.focus === 'function';
+
+  if (focusable) {
+    element.focus({ preventScroll: true });
+    element.dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
+    element.dispatchEvent(new FocusEvent('focus', { bubbles: false }));
+  }
+
   element.dispatchEvent(new Event('input', { bubbles: true }));
   element.dispatchEvent(new Event('change', { bubbles: true }));
-  element.dispatchEvent(new Event('blur', { bubbles: true }));
+
+  if (focusable) {
+    element.blur();
+    element.dispatchEvent(new FocusEvent('blur', { bubbles: false }));
+    element.dispatchEvent(new FocusEvent('focusout', { bubbles: true }));
+  } else {
+    element.dispatchEvent(new Event('blur', { bubbles: true }));
+  }
 }
 
 const FILLABLE_SELECTOR = [
