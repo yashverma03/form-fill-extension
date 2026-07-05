@@ -419,6 +419,18 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
     threshold: 10,
     questionId: QuestionIdEnum.TermsConsent,
   },
+  {
+    patterns: [
+      'are you 18 years of age or older',
+      'are you at least 18',
+      'are you 18 or older',
+      'confirm you are 18',
+      '18 age',
+      'age 18',
+    ],
+    threshold: 30,
+    questionId: QuestionIdEnum.AgeConfirmation,
+  },
 
   // ── EEO / voluntary disclosure ────────────────────────────────────────
   {

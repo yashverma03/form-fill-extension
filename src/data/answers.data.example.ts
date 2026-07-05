@@ -56,6 +56,7 @@ export const ANSWERS_DATA: Record<QuestionIdEnum, string> = {
   [QuestionIdEnum.CriminalRecord]: 'No',
   [QuestionIdEnum.SecurityClearance]: 'No',
   [QuestionIdEnum.TermsConsent]: 'Yes',
+  [QuestionIdEnum.AgeConfirmation]: 'Yes',
   [QuestionIdEnum.Gender]: 'Male',
   [QuestionIdEnum.Pronouns]: 'He/Him',
   [QuestionIdEnum.DateOfBirth]: '01/01/1998',

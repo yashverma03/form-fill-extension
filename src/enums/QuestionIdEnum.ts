@@ -65,6 +65,7 @@ export enum QuestionIdEnum {
   CriminalRecord = 'CriminalRecord',
   SecurityClearance = 'SecurityClearance',
   TermsConsent = 'TermsConsent',
+  AgeConfirmation = 'AgeConfirmation',
 
   // ── EEO / voluntary disclosure ────────────────────────────────────────
   Gender = 'Gender',
