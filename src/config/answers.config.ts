@@ -303,6 +303,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'personal website',
       'portfolio url',
       'personal site',
+      'website',
     ],
     threshold: 45,
     questionId: QuestionIdEnum.Portfolio,
