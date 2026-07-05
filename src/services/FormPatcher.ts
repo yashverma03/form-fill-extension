@@ -3,6 +3,7 @@ import type { ResolvedPatch } from '../interfaces/ResolvedPatch';
 import { InputTypeEnum } from '../enums/InputTypeEnum';
 import {
   dispatchInputEvents,
+  findListboxTypeaheadInput,
   getFormRoot,
   isInteractable,
   isSelectEmpty,
@@ -68,6 +69,8 @@ export class FormPatcher {
         return this.patchRadio(input.element, answer);
       case InputTypeEnum.Checkbox:
         return this.patchCheckbox(input.element, answer);
+      case InputTypeEnum.ListboxButton:
+        return this.patchListboxButton(input.element, answer);
       default:
         return this.patchTextInput(input.element, answer);
     }
@@ -207,6 +210,43 @@ export class FormPatcher {
 
     element.checked = true;
     dispatchInputEvents(element);
+    return true;
+  }
+
+  /**
+   * Types the answer into the widget's adjacent typeahead input and commits it
+   * with Enter, the same as a human interacting with a Workday-style listbox
+   * button whose options only render into the DOM once opened. We deliberately
+   * don't open/read the option list — typing the answer and pressing Enter lets
+   * the widget's own filtering pick the closest option.
+   */
+  private patchListboxButton(element: HTMLElement, answer: string): boolean {
+    if (!(element instanceof HTMLButtonElement)) {
+      return false;
+    }
+
+    const text = element.textContent?.trim() ?? '';
+    if (text !== '' && !/^(select|choose)\b/i.test(text) && text !== '--') {
+      return false;
+    }
+
+    const input = findListboxTypeaheadInput(element);
+    if (!input) {
+      return false;
+    }
+
+    input.focus({ preventScroll: true });
+    setNativeInputValue(input, answer);
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    input.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'Enter', code: 'Enter', bubbles: true }),
+    );
+    input.dispatchEvent(
+      new KeyboardEvent('keyup', { key: 'Enter', code: 'Enter', bubbles: true }),
+    );
+    input.blur();
+    input.dispatchEvent(new Event('blur', { bubbles: true }));
+
     return true;
   }
 

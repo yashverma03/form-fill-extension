@@ -138,9 +138,35 @@ const FILLABLE_SELECTOR = [
   '[role="searchbox"]',
   '[contenteditable="true"]',
   '[contenteditable=""]',
+  'button[aria-haspopup="listbox"]',
 ].join(', ');
 
 export { FILLABLE_SELECTOR };
+
+/**
+ * True for button-triggered listbox widgets (e.g. Workday) whose options render
+ * lazily on open, identified by the adjacent typeahead text input they render
+ * alongside the trigger button. Generic menu buttons (settings, account menus)
+ * share `aria-haspopup="listbox"` but lack this sibling input, so they're excluded.
+ */
+export function isListboxTriggerButton(element: HTMLElement): boolean {
+  return (
+    element instanceof HTMLButtonElement &&
+    element.getAttribute('aria-haspopup') === 'listbox' &&
+    findListboxTypeaheadInput(element) !== null
+  );
+}
+
+/** Locates the typeahead text input Workday renders next to a listbox trigger button. */
+export function findListboxTypeaheadInput(
+  button: HTMLElement,
+): HTMLInputElement | null {
+  return (
+    button.parentElement?.querySelector<HTMLInputElement>(
+      'input[type="text"]',
+    ) ?? null
+  );
+}
 
 /** Collects fillable controls including those inside open shadow roots. */
 export function queryFillableElements(

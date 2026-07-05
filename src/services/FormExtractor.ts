@@ -5,6 +5,7 @@ import {
   FILLABLE_SELECTOR,
   getFormRoot,
   isInteractable,
+  isListboxTriggerButton,
   isSelectEmpty,
   queryFillableElements,
 } from '../utils/domForm';
@@ -73,6 +74,10 @@ export class FormExtractor {
       }
     }
 
+    if (element instanceof HTMLButtonElement && !isListboxTriggerButton(element)) {
+      return false;
+    }
+
     return isInteractable(element);
   }
 
@@ -119,6 +124,10 @@ export class FormExtractor {
         default:
           return InputTypeEnum.Text;
       }
+    }
+
+    if (isListboxTriggerButton(element)) {
+      return InputTypeEnum.ListboxButton;
     }
 
     const role = element.getAttribute('role');
@@ -185,6 +194,11 @@ export class FormExtractor {
   }
 
   private resolveCurrentValue(element: HTMLElement): string {
+    if (isListboxTriggerButton(element)) {
+      const text = element.textContent?.trim() ?? '';
+      return /^(select|choose)\b/i.test(text) || text === '--' ? '' : text;
+    }
+
     if (element instanceof HTMLSelectElement) {
       if (isSelectEmpty(element)) {
         return '';

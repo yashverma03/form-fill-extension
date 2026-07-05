@@ -212,6 +212,89 @@ textarea {
   padding-top: 0.5rem;
 }
 
+/* Workday-style button-triggered listbox (options render lazily on open) */
+.wd-listbox-field {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.wd-listbox-field > legend {
+  padding: 0;
+  margin-bottom: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.wd-listbox-wrap {
+  position: relative;
+  max-width: 320px;
+}
+
+.wd-listbox-button {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font: inherit;
+  text-align: left;
+  color: var(--text);
+  background: var(--bg-input);
+  border: 1px solid var(--border-input);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.wd-listbox-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font: inherit;
+  color: var(--text);
+  background: transparent;
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.wd-listbox-wrap.is-open .wd-listbox-input {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.wd-listbox-options {
+  position: absolute;
+  z-index: 1;
+  top: calc(100% + 0.25rem);
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 0.25rem 0;
+  list-style: none;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-input);
+  border-radius: 6px;
+}
+
+.wd-listbox-options[hidden] {
+  display: none;
+}
+
+.wd-listbox-options li {
+  padding: 0.375rem 0.75rem;
+  cursor: pointer;
+}
+
+.wd-listbox-options li.is-active {
+  background: var(--accent);
+  color: #fff;
+}
+
+.wd-listbox-options li[hidden] {
+  display: none;
+}
+
 button {
   padding: 0.625rem 1.25rem;
   font: inherit;

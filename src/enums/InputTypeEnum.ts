@@ -9,4 +9,6 @@ export enum InputTypeEnum {
   Email = 'email',
   Number = 'number',
   Url = 'url',
+  /** Custom button-triggered listbox widget (e.g. Workday's `role="listbox"` combobox). */
+  ListboxButton = 'listboxButton',
 }

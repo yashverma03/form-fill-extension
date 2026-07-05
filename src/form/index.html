@@ -780,11 +780,170 @@
           </div>
         </section>
 
+        <!-- ── Edge case: Workday-style custom listbox buttons ─────────── -->
+        <section aria-labelledby="section-workday-listbox">
+          <h2 id="section-workday-listbox">
+            Application Questions (Workday-style widgets)
+          </h2>
+          <p class="section-note">
+            These mimic Workday's button-triggered listbox — options render
+            lazily into the DOM only once opened, so extraction/patching must
+            work off the trigger button and its typeahead input alone.
+          </p>
+
+          <div class="field">
+            <fieldset class="wd-listbox-field">
+              <legend>
+                Are any of your immediate family members currently
+                serving/employed by this company?
+              </legend>
+              <div class="wd-listbox-wrap">
+                <button
+                  type="button"
+                  aria-haspopup="listbox"
+                  aria-expanded="false"
+                  class="wd-listbox-button"
+                >
+                  Select One
+                </button>
+                <input type="text" class="wd-listbox-input" autocomplete="off" />
+                <ul class="wd-listbox-options" role="listbox" hidden>
+                  <li role="option">Yes</li>
+                  <li role="option">No</li>
+                </ul>
+              </div>
+            </fieldset>
+          </div>
+
+          <div class="field">
+            <fieldset class="wd-listbox-field">
+              <legend>Do you have any conflict of interest?</legend>
+              <div class="wd-listbox-wrap">
+                <button
+                  type="button"
+                  aria-haspopup="listbox"
+                  aria-expanded="false"
+                  class="wd-listbox-button"
+                >
+                  Select One
+                </button>
+                <input type="text" class="wd-listbox-input" autocomplete="off" />
+                <ul class="wd-listbox-options" role="listbox" hidden>
+                  <li role="option">Yes</li>
+                  <li role="option">No</li>
+                </ul>
+              </div>
+            </fieldset>
+          </div>
+
+          <div class="field">
+            <fieldset class="wd-listbox-field">
+              <legend>Are you bound by a non-compete agreement?</legend>
+              <div class="wd-listbox-wrap">
+                <button
+                  type="button"
+                  aria-haspopup="listbox"
+                  aria-expanded="false"
+                  class="wd-listbox-button"
+                >
+                  Select One
+                </button>
+                <input type="text" class="wd-listbox-input" autocomplete="off" />
+                <ul class="wd-listbox-options" role="listbox" hidden>
+                  <li role="option">Yes</li>
+                  <li role="option">No</li>
+                </ul>
+              </div>
+            </fieldset>
+          </div>
+        </section>
+
         <div class="actions">
           <button type="submit">Submit Application</button>
           <button type="reset">Clear Form</button>
         </div>
       </form>
     </div>
+
+    <script>
+      // Minimal simulation of Workday's button-triggered listbox: options
+      // only exist in the DOM once opened, and typing + Enter commits the
+      // closest match — mirroring the real widget's typeahead behavior.
+      document.querySelectorAll('.wd-listbox-wrap').forEach((wrap) => {
+        const button = wrap.querySelector('.wd-listbox-button');
+        const input = wrap.querySelector('.wd-listbox-input');
+        const list = wrap.querySelector('.wd-listbox-options');
+        const options = Array.from(list.querySelectorAll('[role="option"]'));
+
+        const openList = () => {
+          list.hidden = false;
+          wrap.classList.add('is-open');
+          button.setAttribute('aria-expanded', 'true');
+        };
+
+        const closeList = () => {
+          list.hidden = true;
+          wrap.classList.remove('is-open');
+          button.setAttribute('aria-expanded', 'false');
+        };
+
+        const selectOption = (option) => {
+          if (!option) {
+            return;
+          }
+          button.textContent = option.textContent.trim();
+          input.value = '';
+          closeList();
+        };
+
+        const filter = () => {
+          const query = input.value.trim().toLowerCase();
+          let firstMatch = null;
+          options.forEach((option) => {
+            const label = option.textContent.trim().toLowerCase();
+            const matches = query === '' || label.startsWith(query);
+            option.hidden = !matches;
+            if (matches && !firstMatch) {
+              firstMatch = option;
+            }
+          });
+          options.forEach((option) =>
+            option.classList.toggle('is-active', option === firstMatch),
+          );
+          openList();
+        };
+
+        button.addEventListener('click', () => {
+          if (list.hidden) {
+            openList();
+            input.focus();
+          } else {
+            closeList();
+          }
+        });
+
+        input.addEventListener('input', filter);
+        input.addEventListener('keydown', (event) => {
+          if (event.key !== 'Enter') {
+            return;
+          }
+          event.preventDefault();
+          const active =
+            list.querySelector('.is-active') ||
+            options.find((option) => !option.hidden);
+          selectOption(active);
+        });
+        input.addEventListener('blur', () => {
+          window.setTimeout(closeList, 0);
+        });
+
+        options.forEach((option) => {
+          option.addEventListener('mousedown', (event) => {
+            event.preventDefault();
+            selectOption(option);
+          });
+        });
+      });
+    </script>
   </body>
 </html>
