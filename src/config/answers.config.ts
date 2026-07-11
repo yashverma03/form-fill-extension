@@ -264,6 +264,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'notice period days',
       'serving notice',
       'notice in days',
+      'available to join',
       /notice period(?! negotiable)/, // "notice period" not followed by " negotiable"
     ],
     threshold: 45,
