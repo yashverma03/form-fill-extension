@@ -169,9 +169,18 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'expected ctc',
       'desired salary',
       'desired ctc',
+      'desired compensation',
+      'desired pay',
+      'desired base salary',
+      'expected pay',
+      'expected compensation',
       'salary expectation',
       'compensation expectation',
-      /expected.*(salary|ctc|compensation)/, // "expected" … salary/ctc/compensation
+      'pay expectation',
+      'expected remuneration',
+      'desired remuneration',
+      /expected.*(salary|ctc|compensation|pay)/, // "expected" … salary/ctc/compensation/pay
+      /desired.*(salary|ctc|compensation|pay)/, // "desired" … salary/ctc/compensation/pay
     ],
     threshold: 45,
     subPatterns: [
