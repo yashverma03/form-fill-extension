@@ -224,7 +224,7 @@ function findGroupLabel(element: HTMLElement): string {
 }
 
 function findSectionHeading(element: HTMLElement): string {
-  const container = element.closest('fieldset, section, form, li, tr');
+  const container = element.closest('fieldset, section, li, tr');
   if (!container) {
     return '';
   }
