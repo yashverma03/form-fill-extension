@@ -486,6 +486,18 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
 
   // ── Location & address ────────────────────────────────────────────────
   {
+    patterns: [
+      'pin code',
+      'pincode',
+      'postal code',
+      'zip code',
+      'zip',
+      'postcode',
+    ],
+    threshold: 50,
+    questionId: QuestionIdEnum.PinCode,
+  },
+  {
     patterns: ['country of residence', 'country you live', 'residence country'],
     threshold: 35,
     questionId: QuestionIdEnum.CountryOfResidence,
@@ -543,18 +555,6 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
     patterns: ['address line 2', 'address 2', 'landmark', 'area', 'locality'],
     threshold: 45,
     questionId: QuestionIdEnum.AddressLine2,
-  },
-  {
-    patterns: [
-      'pin code',
-      'pincode',
-      'postal code',
-      'zip code',
-      'zip',
-      'postcode',
-    ],
-    threshold: 50,
-    questionId: QuestionIdEnum.PinCode,
   },
   {
     patterns: [
