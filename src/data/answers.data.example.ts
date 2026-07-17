@@ -55,6 +55,7 @@ export const ANSWERS_DATA: Record<QuestionIdEnum, string> = {
   [QuestionIdEnum.NonCompeteAgreement]: 'No',
   [QuestionIdEnum.CriminalRecord]: 'No',
   [QuestionIdEnum.SecurityClearance]: 'No',
+  [QuestionIdEnum.BackgroundCheckConsent]: 'Yes',
   [QuestionIdEnum.TermsConsent]: 'Yes',
   [QuestionIdEnum.AgeConfirmation]: 'Yes',
   [QuestionIdEnum.Gender]: 'Male',

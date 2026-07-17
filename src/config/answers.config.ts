@@ -401,12 +401,17 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
   },
   {
     patterns: [
+      'willing to submit a background check',
+      'willing to submit to a background check',
+      'consent to a background check',
+      'background check during the hiring process',
       'background check',
-      'criminal record',
-      'felony',
-      'convicted',
-      'criminal history',
     ],
+    threshold: 10,
+    questionId: QuestionIdEnum.BackgroundCheckConsent,
+  },
+  {
+    patterns: ['criminal record', 'felony', 'convicted', 'criminal history'],
     threshold: 10,
     questionId: QuestionIdEnum.CriminalRecord,
   },

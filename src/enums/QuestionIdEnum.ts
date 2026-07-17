@@ -64,6 +64,7 @@ export enum QuestionIdEnum {
   NonCompeteAgreement = 'NonCompeteAgreement',
   CriminalRecord = 'CriminalRecord',
   SecurityClearance = 'SecurityClearance',
+  BackgroundCheckConsent = 'BackgroundCheckConsent',
   TermsConsent = 'TermsConsent',
   AgeConfirmation = 'AgeConfirmation',
 
