@@ -179,8 +179,13 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'pay expectation',
       'expected remuneration',
       'desired remuneration',
+      'minimum base salary',
+      'minimum base salary or range you are expecting',
+      'minimum salary expected',
+      'base salary range expected',
       /expected.*(salary|ctc|compensation|pay)/, // "expected" … salary/ctc/compensation/pay
       /desired.*(salary|ctc|compensation|pay)/, // "desired" … salary/ctc/compensation/pay
+      /minimum.*(base salary|salary|ctc|compensation|pay)/, // "minimum" … base salary/salary/ctc/compensation/pay
     ],
     threshold: 45,
     subPatterns: [
