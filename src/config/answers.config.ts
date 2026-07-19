@@ -75,17 +75,6 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
   },
   {
     patterns: [
-      'preferred contact',
-      'preferred contact method',
-      'contact method',
-      'how should we contact',
-      'best way to reach',
-    ],
-    threshold: 35,
-    questionId: QuestionIdEnum.PreferredContact,
-  },
-  {
-    patterns: [
       'phone number',
       'phone no',
       'mobile number',
@@ -104,6 +93,17 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
     ],
     threshold: 45,
     questionId: QuestionIdEnum.Phone,
+  },
+  {
+    patterns: [
+      'preferred contact',
+      'preferred contact method',
+      'contact method',
+      'how should we contact',
+      'best way to reach',
+    ],
+    threshold: 35,
+    questionId: QuestionIdEnum.PreferredContact,
   },
 
   // ── Employment (current) ──────────────────────────────────────────────
