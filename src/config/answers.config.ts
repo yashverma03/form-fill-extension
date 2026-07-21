@@ -584,6 +584,19 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'open to relocation',
       'relocate',
       'relocation',
+      'able to work on a daily basis in the work location',
+      'able to work on a daily basis at the work location',
+      'work on a daily basis in the work location listed',
+      'willing to relocate at your own expense',
+      'relocate at your own expense',
+      'relocate at your own cost',
+      'relocate at their own expense',
+      'willing to relocate to accept a position',
+      'work in the location listed for this position',
+      'work daily at the location listed for this position',
+      /work\s+on\s+a\s+daily\s+basis\s+in\s+the\s+work\s+location/, // "work on a daily basis in the work location" (position-listed variants)
+      /relocate\s+at\s+(your|their|my)\s+own\s+expense/, // "relocate at your/their/my own expense"
+      /able\s+to\s+work\s+.*daily\s+basis\s+.*work\s+location/, // e.g. "able to work ... daily basis ... work location"
     ],
     threshold: 25,
     questionId: QuestionIdEnum.WillingToRelocate,
