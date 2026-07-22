@@ -1,5 +1,6 @@
 import { ANSWERS_CONFIG } from '../config/answers.config';
 import { ANSWERS_DATA } from '../data/answers.data';
+import { AnswerDataValidator } from '../services/AnswerDataValidator';
 import { AnswerResolver } from '../services/AnswerResolver';
 import { FormExtractor } from '../services/FormExtractor';
 import { FormPatcher } from '../services/FormPatcher';
@@ -9,6 +10,8 @@ import type { FillerResultMessage } from '../types/FillerResultMessage';
 
 /** Orchestrates extract → resolve → log → patch on the current page. */
 async function runFiller(): Promise<FillerResultMessage> {
+  AnswerDataValidator.validate(ANSWERS_DATA);
+
   const logger = new Logger();
   const extractor = new FormExtractor();
   const inputs = extractor.extract();
