@@ -10,6 +10,11 @@ const EMPTY_OPTION_LABELS = new Set([
   'choose one',
 ]);
 
+/** Options that substring-match common country answers but are never the intended country. */
+const EXCLUDED_OPTION_LABELS = new Set([
+  'british indian ocean territory',
+]);
+
 const BOOLEAN_NO_ANSWERS = new Set([
   'no',
   'false',
@@ -38,7 +43,10 @@ export class ClosestOptionMatcher {
     options.forEach((option, index) => {
       const normalizedOption = TextNormalizer.normalizeText(option);
 
-      if (EMPTY_OPTION_LABELS.has(normalizedOption)) {
+      if (
+        EMPTY_OPTION_LABELS.has(normalizedOption) ||
+        EXCLUDED_OPTION_LABELS.has(normalizedOption)
+      ) {
         return;
       }
 
