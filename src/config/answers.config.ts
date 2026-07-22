@@ -279,6 +279,8 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'serving notice',
       'notice in days',
       'available to join',
+      'how soon can you join',
+      'how soon can you join us',
       /notice period(?! negotiable)/, // "notice period" not followed by " negotiable"
     ],
     threshold: 45,
@@ -610,6 +612,18 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
     ],
     threshold: 25,
     questionId: QuestionIdEnum.WillingToRelocate,
+  },
+  {
+    patterns: [
+      'willing to work from office',
+      'willing to work from the office',
+      'work from office',
+      'work from the office full',
+      'comfortable working from office',
+      'able to work from office',
+    ],
+    threshold: 25,
+    questionId: QuestionIdEnum.WillingToWorkFromOffice,
   },
   {
     patterns: [

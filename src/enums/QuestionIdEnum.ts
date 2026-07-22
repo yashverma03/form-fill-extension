@@ -54,6 +54,7 @@ export enum QuestionIdEnum {
   EmploymentType = 'EmploymentType',
   WillingToTravel = 'WillingToTravel',
   WorkShift = 'WorkShift',
+  WillingToWorkFromOffice = 'WillingToWorkFromOffice',
 
   // ── Work authorization & compliance ───────────────────────────────────
   LegallyAuthorizedToWork = 'LegallyAuthorizedToWork',

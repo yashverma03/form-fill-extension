@@ -47,6 +47,7 @@ export const ANSWERS_DATA: Record<QuestionIdEnum, string> = {
   [QuestionIdEnum.EmploymentType]: 'Full-time',
   [QuestionIdEnum.WillingToTravel]: 'Yes',
   [QuestionIdEnum.WorkShift]: 'Day',
+  [QuestionIdEnum.WillingToWorkFromOffice]: 'Yes',
   [QuestionIdEnum.LegallyAuthorizedToWork]: 'Yes',
   [QuestionIdEnum.VisaSponsorshipRequired]: 'No',
   [QuestionIdEnum.VisaStatus]: 'N/A',
