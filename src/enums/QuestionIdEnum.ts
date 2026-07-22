@@ -21,6 +21,7 @@ export enum QuestionIdEnum {
   YearsOfExperience = 'YearsOfExperience',
 
   // ── Compensation & availability ─────────────────────────────────────
+  Currency = 'Currency',
   CurrentCtc = 'CurrentCtc',
   CurrentCtcLpa = 'CurrentCtcLpa',
   ExpectedCtc = 'ExpectedCtc',

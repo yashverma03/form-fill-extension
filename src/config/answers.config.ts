@@ -146,6 +146,16 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
   // ── Compensation & availability ─────────────────────────────────────
   {
     patterns: [
+      'currency',
+      'salary currency',
+      'currency of your current salary',
+      'currency of your expected salary',
+    ],
+    threshold: 45,
+    questionId: QuestionIdEnum.Currency,
+  },
+  {
+    patterns: [
       'current salary',
       'current ctc',
       'present salary',

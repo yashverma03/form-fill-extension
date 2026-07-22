@@ -20,6 +20,7 @@ export const ANSWERS_DATA: Record<QuestionIdEnum, string> = {
   [QuestionIdEnum.CurrentCompany]: 'Acme',
   [QuestionIdEnum.CurrentLocation]: 'NYC',
   [QuestionIdEnum.YearsOfExperience]: '3',
+  [QuestionIdEnum.Currency]: 'INR',
   [QuestionIdEnum.CurrentCtc]: '10',
   [QuestionIdEnum.CurrentCtcLpa]: '10',
   [QuestionIdEnum.ExpectedCtc]: '15',
