@@ -6,6 +6,19 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
   // ── Identity (high priority, specific first) ──────────────────────────
   {
     patterns: [
+      'salutation',
+      'name prefix',
+      'honorific',
+      'mr./mrs./ms.',
+      'mr mrs ms',
+      /^title$/,
+      /^prefix$/,
+    ],
+    threshold: 45,
+    questionId: QuestionIdEnum.Salutation,
+  },
+  {
+    patterns: [
       'first name',
       'given name',
       'forename',
@@ -616,6 +629,11 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'willing to relocate to accept a position',
       'work in the location listed for this position',
       'work daily at the location listed for this position',
+      'comfortable for work location',
+      'comfortable with work location',
+      'comfortable with this work location',
+      'comfortable with the work location',
+      /comfortable.*work location/, // "comfortable" … "work location"
       /work\s+on\s+a\s+daily\s+basis\s+in\s+the\s+work\s+location/, // "work on a daily basis in the work location" (position-listed variants)
       /relocate\s+at\s+(your|their|my)\s+own\s+expense/, // "relocate at your/their/my own expense"
       /able\s+to\s+work\s+.*daily\s+basis\s+.*work\s+location/, // e.g. "able to work ... daily basis ... work location"
@@ -744,6 +762,25 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
     patterns: ['certification', 'certifications', 'professional certification'],
     threshold: 40,
     questionId: QuestionIdEnum.Certification,
+  },
+  {
+    patterns: [
+      'do you have experience in building',
+      'do you have experience building',
+      'do you have experience in',
+      'do you have experience with',
+      'do you have experience developing',
+      'do you have experience working with',
+      'do you have experience working on',
+      'have you built',
+      'have you worked with',
+      'have you worked on',
+      'have you developed',
+      /do\s+you\s+have\s+experience/, // "do you have experience" ... (any suffix)
+      /have\s+you\s+(built|developed|worked)/, // "have you built/developed/worked" ...
+    ],
+    threshold: 45,
+    questionId: QuestionIdEnum.HasRelevantExperience,
   },
 
   // ── Application meta ──────────────────────────────────────────────────

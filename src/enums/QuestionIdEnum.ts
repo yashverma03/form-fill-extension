@@ -1,6 +1,7 @@
 /** Unique ID per question in answers.config.ts; maps to personal answers in src/data/answers.data.ts. */
 export enum QuestionIdEnum {
   // ── Identity ──────────────────────────────────────────────────────────
+  Salutation = 'Salutation',
   FirstName = 'FirstName',
   LastName = 'LastName',
   FullName = 'FullName',
@@ -92,6 +93,7 @@ export enum QuestionIdEnum {
 
   // ── Skills & languages ──────────────────────────────────────────────────
   Certification = 'Certification',
+  HasRelevantExperience = 'HasRelevantExperience',
 
   // ── Application meta ──────────────────────────────────────────────────
   ReasonForLeaving = 'ReasonForLeaving',

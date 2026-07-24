@@ -6,6 +6,7 @@ import { QuestionIdEnum } from '../enums/QuestionIdEnum';
  *   cp src/data/answers.data.example.ts src/data/answers.data.ts
  */
 export const ANSWERS_DATA: Record<QuestionIdEnum, string> = {
+  [QuestionIdEnum.Salutation]: 'Mr.',
   [QuestionIdEnum.FirstName]: 'John',
   [QuestionIdEnum.LastName]: 'Doe',
   [QuestionIdEnum.FullName]: 'John Doe',
@@ -77,6 +78,7 @@ export const ANSWERS_DATA: Record<QuestionIdEnum, string> = {
   [QuestionIdEnum.GraduationYear]: '2020',
   [QuestionIdEnum.Gpa]: '3.8',
   [QuestionIdEnum.Certification]: 'AWS',
+  [QuestionIdEnum.HasRelevantExperience]: 'Yes',
   [QuestionIdEnum.ReasonForLeaving]: 'Seeking growth.',
   [QuestionIdEnum.WhyApply]: 'Strong fit.',
   [QuestionIdEnum.WhyHireYou]: 'Ownership and reliability.',
