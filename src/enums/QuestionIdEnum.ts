@@ -90,6 +90,7 @@ export enum QuestionIdEnum {
   FieldOfStudy = 'FieldOfStudy',
   GraduationYear = 'GraduationYear',
   Gpa = 'Gpa',
+  CompletedSecondaryEducation = 'CompletedSecondaryEducation',
 
   // ── Skills & languages ──────────────────────────────────────────────────
   Certification = 'Certification',

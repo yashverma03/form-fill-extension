@@ -756,6 +756,21 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
     threshold: 50,
     questionId: QuestionIdEnum.Gpa,
   },
+  {
+    patterns: [
+      'completed secondary education',
+      'completed secondary education or its equivalent',
+      'secondary education or its equivalent',
+      'secondary education',
+      'high school diploma',
+      'completed high school',
+      'completed your high school',
+      /completed.*secondary education/,
+      /completed.*high school/,
+    ],
+    threshold: 45,
+    questionId: QuestionIdEnum.CompletedSecondaryEducation,
+  },
 
   // ── Skills & languages ──────────────────────────────────────────────────
   {

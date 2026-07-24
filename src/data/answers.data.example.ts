@@ -77,6 +77,7 @@ export const ANSWERS_DATA: Record<QuestionIdEnum, string> = {
   [QuestionIdEnum.FieldOfStudy]: 'CS',
   [QuestionIdEnum.GraduationYear]: '2020',
   [QuestionIdEnum.Gpa]: '3.8',
+  [QuestionIdEnum.CompletedSecondaryEducation]: 'Yes',
   [QuestionIdEnum.Certification]: 'AWS',
   [QuestionIdEnum.HasRelevantExperience]: 'Yes',
   [QuestionIdEnum.ReasonForLeaving]: 'Seeking growth.',
