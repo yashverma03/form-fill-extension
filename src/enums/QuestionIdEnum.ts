@@ -56,6 +56,9 @@ export enum QuestionIdEnum {
   WillingToTravel = 'WillingToTravel',
   WorkShift = 'WorkShift',
   WillingToWorkFromOffice = 'WillingToWorkFromOffice',
+  PursuingFurtherEducation = 'PursuingFurtherEducation',
+  ApplyingForInternshipOrCoOp = 'ApplyingForInternshipOrCoOp',
+  ApplyingForFullTime = 'ApplyingForFullTime',
 
   // ── Work authorization & compliance ───────────────────────────────────
   LegallyAuthorizedToWork = 'LegallyAuthorizedToWork',
