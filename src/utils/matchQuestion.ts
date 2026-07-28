@@ -32,7 +32,13 @@ export class QuestionMatcher {
       return 0;
     }
 
-    if (normalizedQuestion.includes(normalizedPattern)) {
+    if (
+      QuestionMatcher.patternWordsAppearInQuestion(
+        normalizedPattern,
+        normalizedQuestion,
+      ) &&
+      normalizedQuestion.includes(normalizedPattern)
+    ) {
       return 100;
     }
 
