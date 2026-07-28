@@ -171,6 +171,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
     patterns: [
       'current salary',
       'current ctc',
+      'cctc',
       'present salary',
       'present ctc',
       'current compensation',
@@ -190,6 +191,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
     patterns: [
       'expected salary',
       'expected ctc',
+      'ectc',
       'desired salary',
       'desired ctc',
       'desired compensation',
@@ -304,7 +306,12 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'available to join',
       'how soon can you join',
       'how soon can you join us',
+      'notice lwd',
+      'notice/lwd',
+      'lwd',
+      'last working day',
       /notice period(?! negotiable)/, // "notice period" not followed by " negotiable"
+      /notice.*lwd/, // "notice" … "lwd"
     ],
     threshold: 45,
     questionId: QuestionIdEnum.NoticePeriod,
