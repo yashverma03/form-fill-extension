@@ -211,6 +211,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       /expected.*(salary|ctc|compensation|pay)/, // "expected" … salary/ctc/compensation/pay
       /desired.*(salary|ctc|compensation|pay)/, // "desired" … salary/ctc/compensation/pay
       /minimum.*(base salary|salary|ctc|compensation|pay)/, // "minimum" … base salary/salary/ctc/compensation/pay
+      /compensation\s*expectations?/, // "Compensation Expectations" / "Compensation Expectation"
     ],
     threshold: 45,
     subPatterns: [
