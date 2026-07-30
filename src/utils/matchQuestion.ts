@@ -71,7 +71,7 @@ export class QuestionMatcher {
     }
 
     return words.every((word) =>
-      new RegExp(`\\b${QuestionMatcher.escapeRegExp(word)}\\b`).test(question),
+      new RegExp(`\\b${QuestionMatcher.escapeRegExp(word)}s?\\b`).test(question),
     );
   }
 

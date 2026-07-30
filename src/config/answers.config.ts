@@ -159,23 +159,17 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
   // ── Compensation & availability ─────────────────────────────────────
   {
     patterns: [
-      'currency',
-      'salary currency',
-      'currency of your current salary',
-      'currency of your expected salary',
-    ],
-    threshold: 45,
-    questionId: QuestionIdEnum.Currency,
-  },
-  {
-    patterns: [
       'current salary',
       'current ctc',
       'cctc',
       'present salary',
       'present ctc',
       'current compensation',
-      /current.*(salary|ctc|compensation)/, // "current" … salary/ctc/compensation
+      'current annual pay',
+      'current pay',
+      'annual pay',
+      /current.*(salary|ctc|compensation|pay)/, // "current" … salary/ctc/compensation/pay
+      /present.*(salary|ctc|compensation|pay)/, // "present" … salary/ctc/compensation/pay
     ],
     threshold: 45,
     subPatterns: [
@@ -208,10 +202,15 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'minimum base salary or range you are expecting',
       'minimum salary expected',
       'base salary range expected',
+      'annual salary expectation',
+      'salary expectation',
+      'annual compensation',
+      'desired annual compensation',
       /expected.*(salary|ctc|compensation|pay)/, // "expected" … salary/ctc/compensation/pay
       /desired.*(salary|ctc|compensation|pay)/, // "desired" … salary/ctc/compensation/pay
       /minimum.*(base salary|salary|ctc|compensation|pay)/, // "minimum" … base salary/salary/ctc/compensation/pay
-      /compensation\s*expectations?/, // "Compensation Expectations" / "Compensation Expectation"
+      /(compensation|salary|pay|ctc)\s*expectations?/, // "salary/compensation/pay expectation(s)"
+      /(annual|desired|expected)\s+(salary|compensation|pay|ctc)/, // "annual salary", "desired compensation", …
     ],
     threshold: 45,
     subPatterns: [
@@ -222,6 +221,16 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       },
     ],
     questionId: QuestionIdEnum.ExpectedCtc,
+  },
+  {
+    patterns: [
+      'currency',
+      'salary currency',
+      'currency of your current salary',
+      'currency of your expected salary',
+    ],
+    threshold: 45,
+    questionId: QuestionIdEnum.Currency,
   },
   {
     patterns: [

@@ -29,7 +29,7 @@ async function runFiller(): Promise<FillerResultMessage> {
   }
 
   const patcher = new FormPatcher();
-  const result = patcher.patch(resolved);
+  const result = await patcher.patch(resolved);
 
   return { type: 'FILLER_RESULT', result };
 }

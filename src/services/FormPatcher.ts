@@ -7,8 +7,10 @@ import {
   getFormRoot,
   isInteractable,
   isSelectEmpty,
+  openListboxOptions,
   setNativeInputValue,
   setNativeSelectValue,
+  simulateClick,
 } from '../utils/domForm';
 import { ClosestOptionMatcher } from '../utils/findClosestOption';
 import { TextNormalizer } from '../utils/normalizeText';
@@ -19,7 +21,7 @@ export class FormPatcher {
   private readonly patchedSelects = new Set<HTMLSelectElement>();
 
   /** Runs patches for each resolved item and tallies patched, skipped, and errored counts. */
-  patch(resolved: ResolvedPatch[]): PatchResult {
+  async patch(resolved: ResolvedPatch[]): Promise<PatchResult> {
     const result: PatchResult = {
       patched: 0,
       skipped: 0,
@@ -38,7 +40,7 @@ export class FormPatcher {
       }
 
       try {
-        const applied = this.applyPatch(item);
+        const applied = await this.applyPatch(item);
         if (applied) {
           result.patched += 1;
         } else {
@@ -56,7 +58,7 @@ export class FormPatcher {
   }
 
   /** Dispatches to the input-type-specific patcher. */
-  private applyPatch(item: ResolvedPatch): boolean {
+  private async applyPatch(item: ResolvedPatch): Promise<boolean> {
     const { input, answer } = item;
     if (answer === null || !isInteractable(input.element)) {
       return false;
@@ -214,13 +216,17 @@ export class FormPatcher {
   }
 
   /**
-   * Types the answer into the widget's adjacent typeahead input and commits it
-   * with Enter, the same as a human interacting with a Workday-style listbox
-   * button whose options only render into the DOM once opened. We deliberately
-   * don't open/read the option list — typing the answer and pressing Enter lets
-   * the widget's own filtering pick the closest option.
+   * Fills a button-triggered listbox (e.g. Workday) whose options render lazily
+   * on open. We open the popup, match the answer against the rendered option
+   * labels, and click the matching option directly — the reliable equivalent of
+   * a human picking "Yes"/"No" from the list. Only when no option matches (or
+   * the popup can't be read) do we fall back to typing into the adjacent
+   * typeahead input and pressing Enter, preserving the previous behaviour.
    */
-  private patchListboxButton(element: HTMLElement, answer: string): boolean {
+  private async patchListboxButton(
+    element: HTMLElement,
+    answer: string,
+  ): Promise<boolean> {
     if (!(element instanceof HTMLButtonElement)) {
       return false;
     }
@@ -228,6 +234,22 @@ export class FormPatcher {
     const text = element.textContent?.trim() ?? '';
     if (text !== '' && !/^(select|choose)\b/i.test(text) && text !== '--') {
       return false;
+    }
+
+    const options = await openListboxOptions(element);
+    if (options.length > 0) {
+      const targetIndex = ClosestOptionMatcher.findIndex(
+        options.map((option) => option.label),
+        answer,
+      );
+
+      if (targetIndex >= 0) {
+        const target = options[targetIndex];
+        if (target) {
+          simulateClick(target.element);
+          return true;
+        }
+      }
     }
 
     const input = findListboxTypeaheadInput(element);

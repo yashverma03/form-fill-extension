@@ -1,4 +1,5 @@
 /** Shared DOM helpers for form extraction and patching. */
+import type { ListboxOption } from '../interfaces/ListboxOption';
 
 /** Nearest form ancestor, or the document when none exists. */
 export function getFormRoot(element: HTMLElement): HTMLElement | Document {
@@ -166,6 +167,69 @@ export function findListboxTypeaheadInput(
       'input[type="text"]',
     ) ?? null
   );
+}
+
+/** Resolves after the given delay, letting the widget flush its popup render. */
+export function waitFrame(delayMs = 40): Promise<void> {
+  return new Promise((resolve) => {
+    setTimeout(resolve, delayMs);
+  });
+}
+
+/** Simulates a real user click so widget option handlers (mousedown/up/click) fire. */
+export function simulateClick(element: HTMLElement): void {
+  for (const type of ['pointerdown', 'mousedown', 'pointerup', 'mouseup', 'click']) {
+    element.dispatchEvent(
+      new MouseEvent(type, { bubbles: true, cancelable: true, view: window }),
+    );
+  }
+}
+
+/**
+ * Opens a button-triggered listbox (e.g. Workday) and returns its rendered
+ * options. The popup renders lazily on open, so we click the trigger, wait for
+ * the DOM to flush, then locate the listbox via `aria-controls` (falling back to
+ * the topmost open `[role="listbox"]`). Placeholder rows ("Select One", empty
+ * values, disabled) are excluded so they can't be matched or clicked.
+ */
+export async function openListboxOptions(
+  button: HTMLButtonElement,
+): Promise<ListboxOption[]> {
+  simulateClick(button);
+  await waitFrame();
+
+  const controls = button.getAttribute('aria-controls');
+  let listbox = controls ? document.getElementById(controls) : null;
+
+  if (!listbox) {
+    const open = Array.from(
+      document.querySelectorAll<HTMLElement>('[role="listbox"]'),
+    ).filter((element) => isVisible(element));
+    listbox = open[open.length - 1] ?? null;
+  }
+
+  if (!listbox) {
+    return [];
+  }
+
+  return Array.from(
+    listbox.querySelectorAll<HTMLElement>('[role="option"]'),
+  )
+    .filter((option) => option.getAttribute('aria-disabled') !== 'true')
+    .filter((option) => (option.getAttribute('data-value') ?? 'x') !== '')
+    .map((option) => ({
+      label: option.textContent?.trim() ?? '',
+      element: option,
+    }))
+    .filter((option) => {
+      const normalized = option.label.toLowerCase();
+      return (
+        normalized !== '' &&
+        !normalized.startsWith('select') &&
+        !normalized.startsWith('choose') &&
+        normalized !== '--'
+      );
+    });
 }
 
 /** Collects fillable controls including those inside open shadow roots. */
