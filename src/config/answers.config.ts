@@ -425,6 +425,10 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'government agency that has oversight',
       'outside employment or activity',
       'continue if you are hired',
+      'employment or other work that you intend to continue',
+      'intend to continue if you accept',
+      'plan to continue if you accept',
+      /employment or other work.*continue/, // "employment or other work" … "continue" (moonlighting disclosure)
     ],
     threshold: 10,
     questionId: QuestionIdEnum.ConflictOfInterest,
@@ -442,9 +446,83 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'related to anyone who is an employee',
       'close personal relationship with a current',
       'close personal relationship with an employee',
+      'family relationship',
+      'close personal contact',
+      /family relationship.*(employee|board member)/, // "family relationship" … "employee/board member"
+      /close personal (contact|relationship).*(employee|board member)/, // "close personal contact/relationship" … "employee/board member"
     ],
     threshold: 10,
     questionId: QuestionIdEnum.RelativeAtCompany,
+  },
+  {
+    patterns: [
+      'fiduciary appointment',
+      'fiduciary designation',
+      'executor, personal representative',
+      'personal representative, administrator, guardian',
+      'trustee, or any similar fiduciary',
+    ],
+    threshold: 10,
+    questionId: QuestionIdEnum.FiduciaryAppointment,
+  },
+  {
+    patterns: [
+      'board of directors',
+      'advisory board',
+      'trustee board',
+      'committee, trustee board',
+      'serve in any capacity on a board',
+      'member of, or do you currently serve in any capacity',
+    ],
+    threshold: 10,
+    questionId: QuestionIdEnum.BoardOrCommitteeMembership,
+  },
+  {
+    patterns: [
+      'ownership interest',
+      '25% or more',
+      '10% or more',
+      'ownership interest in any for-profit business',
+      'ownership interest in any business entity',
+      /\d+%\s*(or more)?\s*ownership/, // e.g. "25% or more ownership"
+    ],
+    threshold: 10,
+    questionId: QuestionIdEnum.OwnershipInterestInBusiness,
+  },
+  {
+    patterns: [
+      'position of control',
+      'serve, service, or plan to serve in any position of control',
+      'control with a for-profit business',
+    ],
+    threshold: 10,
+    questionId: QuestionIdEnum.PositionOfControlInBusiness,
+  },
+  {
+    patterns: [
+      'elected or appointed official',
+      'government entity or governmental',
+      'governmental or public agency',
+      'city council',
+      'school board',
+      'political party committee',
+      'political campaign',
+      'paid or unpaid (volunteer) position on a political campaign',
+    ],
+    threshold: 10,
+    questionId: QuestionIdEnum.GovernmentOrPoliticalInvolvement,
+  },
+  {
+    patterns: [
+      'worked for the company’s auditor',
+      'worked for the auditor',
+      "company's external auditor",
+      'external audit firm',
+      "the bank's auditor",
+      /work(ed)?.*for.*(the )?auditor/, // "work(ed) for [the] auditor"
+    ],
+    threshold: 10,
+    questionId: QuestionIdEnum.AuditorEmployment,
   },
   {
     patterns: [
@@ -650,7 +728,14 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'comfortable with work location',
       'comfortable with this work location',
       'comfortable with the work location',
+      'comfortable commuting',
+      'comfortable commuting to this job',
+      'comfortable commuting to this location',
+      'commute to this location',
+      'commute to the job location',
+      'able to commute',
       /comfortable.*work location/, // "comfortable" … "work location"
+      /comfortable.*commut(e|ing)/, // "comfortable" … "commute/commuting"
       /work\s+on\s+a\s+daily\s+basis\s+in\s+the\s+work\s+location/, // "work on a daily basis in the work location" (position-listed variants)
       /relocate\s+at\s+(your|their|my)\s+own\s+expense/, // "relocate at your/their/my own expense"
       /able\s+to\s+work\s+.*daily\s+basis\s+.*work\s+location/, // e.g. "able to work ... daily basis ... work location"
@@ -945,6 +1030,8 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'were you previously employed by',
       'have you worked with us before',
       'former employee',
+      'current or former employee',
+      /current or former.*employee/, // "current or former [company]... employee?"
     ],
     threshold: 40,
     questionId: QuestionIdEnum.PreviousEmployee,

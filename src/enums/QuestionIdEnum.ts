@@ -73,6 +73,12 @@ export enum QuestionIdEnum {
   BackgroundCheckConsent = 'BackgroundCheckConsent',
   TermsConsent = 'TermsConsent',
   AgeConfirmation = 'AgeConfirmation',
+  FiduciaryAppointment = 'FiduciaryAppointment',
+  BoardOrCommitteeMembership = 'BoardOrCommitteeMembership',
+  OwnershipInterestInBusiness = 'OwnershipInterestInBusiness',
+  PositionOfControlInBusiness = 'PositionOfControlInBusiness',
+  GovernmentOrPoliticalInvolvement = 'GovernmentOrPoliticalInvolvement',
+  AuditorEmployment = 'AuditorEmployment',
 
   // ── EEO / voluntary disclosure ────────────────────────────────────────
   Gender = 'Gender',
