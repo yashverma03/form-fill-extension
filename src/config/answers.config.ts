@@ -399,6 +399,11 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'need sponsorship',
       'immigration sponsorship',
       'do you require visa',
+      'require sponsorship for an employment visa',
+      'authorization to work in the country',
+      'sponsorship for employment visa',
+      /require sponsorship.*(visa|work)/, // "require sponsorship" … "visa/work"
+      /sponsorship.*authorization to work/, // "sponsorship" … "authorization to work"
     ],
     threshold: 20,
     questionId: QuestionIdEnum.VisaSponsorshipRequired,
