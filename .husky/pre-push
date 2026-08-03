@@ -1,1 +1,19 @@
-npm run build
+#!/bin/sh
+
+set -eu
+trap 'code=$?; [ "$code" -ne 0 ] && echo "ERROR | line=$LINENO | exit_code=$code" >&2; exit $code' EXIT
+
+log_dir="$(cd "$(dirname "$0")/../.." && pwd)/logs"
+mkdir -p "$log_dir"
+log_file="$log_dir/build-$(date +%Y%m%d-%H%M%S).log"
+
+status=0
+npm run build > "$log_file" 2>&1 || status=$?
+cat "$log_file"
+
+if [ "$status" -ne 0 ]; then
+  echo "Build failed — see $log_file"
+  exit 1
+fi
+
+echo "Build succeeded — log saved to $log_file"
