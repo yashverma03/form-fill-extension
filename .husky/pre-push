@@ -5,15 +5,14 @@ trap 'code=$?; [ "$code" -ne 0 ] && echo "ERROR | line=$LINENO | exit_code=$code
 
 log_dir="$(cd "$(dirname "$0")/../.." && pwd)/logs"
 mkdir -p "$log_dir"
-log_file="$log_dir/build-$(date +%Y%m%d-%H%M%S).log"
+log_file="$log_dir/husky-pre-push.log"
 
 status=0
-npm run build > "$log_file" 2>&1 || status=$?
-cat "$log_file"
+npm run build >> "$log_file" 2>&1 || status=$?
 
 if [ "$status" -ne 0 ]; then
-  echo "Build failed — see $log_file"
+  echo "[$(date +'%Y-%m-%d %H:%M:%S')] Build failed (exit code $status)" >> "$log_file"
   exit 1
 fi
 
-echo "Build succeeded — log saved to $log_file"
+echo "[$(date +'%Y-%m-%d %H:%M:%S')] Build succeeded" >> "$log_file"
