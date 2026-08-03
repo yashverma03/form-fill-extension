@@ -327,7 +327,14 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
     questionId: QuestionIdEnum.NoticePeriod,
   },
   {
-    patterns: ['when can you join', 'joining time', 'available to start'],
+    patterns: [
+      'when can you join',
+      'joining time',
+      'available to start',
+      'if offered the role',
+      'within how many days will you be able to join',
+      /if offered.*how many days.*join/, // "if offered" … "how many days" … "join"
+    ],
     threshold: 35,
     questionId: QuestionIdEnum.JoiningTime,
   },
@@ -453,11 +460,41 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'close personal relationship with an employee',
       'family relationship',
       'close personal contact',
+      'related to an employee',
+      'related to a client or government official',
+      'dependent or relative of a client',
+      'dependent or relative of a government official',
+      /related to (a|an).*(employee|official)/, // "related to a(n) [company] employee/official"
       /family relationship.*(employee|board member)/, // "family relationship" … "employee/board member"
       /close personal (contact|relationship).*(employee|board member)/, // "close personal contact/relationship" … "employee/board member"
     ],
     threshold: 10,
     questionId: QuestionIdEnum.RelativeAtCompany,
+  },
+  {
+    patterns: [
+      'current employee',
+      'worked here before',
+      'previous employee',
+      'rehire',
+      'have you ever worked for',
+      'have you previously worked for',
+      'have you ever been employed by',
+      'were you previously employed by',
+      'have you worked with us before',
+      'have you worked at',
+      'have you previously worked at',
+      'former employee',
+      'current or former employee',
+      /current or former.*employee/, // "current or former [company]... employee?"
+      /have\s+you\s+(previously\s+|ever\s+)?worked\s+(for|at|with)\s+(us|this|the|our)/, // "have you [previously/ever] worked for/at/with us/this/the/our [company]"
+    ],
+    // Runs ahead of the generic skills/experience matcher (`HasRelevantExperience`)
+    // so employment-history disclosure questions ("have you previously worked
+    // for this company?") never get misread as a technical-experience prompt
+    // and answered "Yes" instead of "No".
+    threshold: 40,
+    questionId: QuestionIdEnum.PreviousEmployee,
   },
   {
     patterns: [
@@ -899,7 +936,9 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'have you worked on',
       'have you developed',
       /do\s+you\s+have\s+experience/, // "do you have experience" ... (any suffix)
-      /have\s+you\s+(built|developed|worked)/, // "have you built/developed/worked" ...
+      // "have you built/developed/worked" ... but not the employment-history
+      // phrasing ("worked for/at [company]") handled by `PreviousEmployee`.
+      /have\s+you\s+(built|developed|worked)(?!\s+(for|at)\b)/,
     ],
     threshold: 45,
     questionId: QuestionIdEnum.HasRelevantExperience,
@@ -1022,24 +1061,6 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
     ],
     threshold: 40,
     questionId: QuestionIdEnum.ReferralSource,
-  },
-  {
-    patterns: [
-      'current employee',
-      'worked here before',
-      'previous employee',
-      'rehire',
-      'have you ever worked for',
-      'have you previously worked for',
-      'have you ever been employed by',
-      'were you previously employed by',
-      'have you worked with us before',
-      'former employee',
-      'current or former employee',
-      /current or former.*employee/, // "current or former [company]... employee?"
-    ],
-    threshold: 40,
-    questionId: QuestionIdEnum.PreviousEmployee,
   },
   {
     patterns: [
