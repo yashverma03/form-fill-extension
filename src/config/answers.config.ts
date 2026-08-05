@@ -139,6 +139,10 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'present employer',
       'company you work for',
       'employer name',
+      'current organization',
+      'present organization',
+      'current organisation',
+      'present organisation',
     ],
     threshold: 50,
     questionId: QuestionIdEnum.CurrentCompany,
@@ -520,8 +524,11 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'have you previously worked at',
       'former employee',
       'current or former employee',
+      'as an employee, contractor or temporary worker',
       /current or former.*employee/, // "current or former [company]... employee?"
       /have\s+you\s+(previously\s+|ever\s+)?worked\s+(for|at|with)\s+(us|this|the|our)/, // "have you [previously/ever] worked for/at/with us/this/the/our [company]"
+      /currently,?\s*or\s+have\s+you\s+previously,?\s*worked\s+at/, // "are you currently, or have you previously, worked at [company]"
+      /worked\s+at.*as\s+an\s+employee,?\s*contractor\s+or\s+temporary\s+worker/, // "worked at [company] as an employee, contractor or temporary worker"
     ],
     // Runs ahead of the generic skills/experience matcher (`HasRelevantExperience`)
     // so employment-history disclosure questions ("have you previously worked
@@ -688,6 +695,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       /post-?employment obligations?/, // "post-employment obligation(s)"
       /prohibit or restrict your employment/, // "...may prohibit or restrict your employment..."
       /non-?compet\w*.*(impact|prevent|restrict|prohibit).*work/, // "non-compet(ition/e)... impact/prevent/restrict/prohibit... work"
+      /agreement with.*(current|previous|former) employer.*restrict.*(ability to work|job)/, // "agreement with your current/previous employer that might restrict your ability to work/do the job"
     ],
     threshold: 10,
     questionId: QuestionIdEnum.NonCompeteAgreement,

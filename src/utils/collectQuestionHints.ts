@@ -187,6 +187,13 @@ function extractLabelText(el: Element): string {
     return inner.textContent;
   }
 
+  // Fallback for question text in a plain wrapper (no label/legend/heading
+  // markup) — a "?" is a strong signal the text itself is the question.
+  const text = el.textContent?.trim() ?? '';
+  if (text.includes('?') && text.length <= 300) {
+    return text;
+  }
+
   return '';
 }
 
