@@ -88,6 +88,9 @@ export enum QuestionIdEnum {
   ReferredByOfficialOrClientExecutive = 'ReferredByOfficialOrClientExecutive',
   IntellectualPropertyInterest = 'IntellectualPropertyInterest',
   SecondaryEmploymentOrBusinessActivity = 'SecondaryEmploymentOrBusinessActivity',
+  RegulatoryInvestigationOrDiscipline = 'RegulatoryInvestigationOrDiscipline',
+  DismissedForMisconduct = 'DismissedForMisconduct',
+  ContinueApplicationConsent = 'ContinueApplicationConsent',
 
   // ── EEO / voluntary disclosure ────────────────────────────────────────
   Gender = 'Gender',

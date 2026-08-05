@@ -439,6 +439,9 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'outside business interest',
       'negotiate, influence',
       'negotiate or influence',
+      'engage with employees to negotiate',
+      'negotiate, influence and/or sign',
+      'sign commercial contracts or government contracts',
       'government office or agency',
       'government agency that has oversight',
       'outside employment or activity',
@@ -446,7 +449,11 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'employment or other work that you intend to continue',
       'intend to continue if you accept',
       'plan to continue if you accept',
+      'reason that would prevent you taking up employment',
+      'reason that would prevent you from taking up employment',
+      'aware of any reason that would prevent',
       /employment or other work.*continue/, // "employment or other work" … "continue" (moonlighting disclosure)
+      /reason.*(prevent).*(taking up|accepting) employment/, // "reason ... prevent ... taking up/accepting employment"
     ],
     threshold: 10,
     questionId: QuestionIdEnum.ConflictOfInterest,
@@ -712,9 +719,48 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
     questionId: QuestionIdEnum.BackgroundCheckConsent,
   },
   {
-    patterns: ['criminal record', 'felony', 'convicted', 'criminal history'],
+    patterns: [
+      'criminal record',
+      'felony',
+      'convicted',
+      'criminal history',
+      'criminal convictions',
+      'cautions, reprimands',
+      'reprimands or final warnings',
+      /criminal convictions?,?\s*cautions?,?\s*reprimands?/, // "criminal convictions, cautions, reprimands..."
+    ],
     threshold: 10,
     questionId: QuestionIdEnum.CriminalRecord,
+  },
+  {
+    patterns: [
+      'subject to investigation by',
+      'disciplined/cautioned by a regulatory body',
+      'disciplined or cautioned by a regulatory body',
+      'investigated by a regulatory body',
+      /investigation by.*(disciplined|cautioned).*regulatory body/, // "investigation by or disciplined/cautioned by a regulatory body"
+    ],
+    threshold: 15,
+    questionId: QuestionIdEnum.RegulatoryInvestigationOrDiscipline,
+  },
+  {
+    patterns: [
+      'dismissed by a previous employer',
+      'dismissed for gross misconduct',
+      'gross misconduct or as part of disciplinary action',
+      /dismissed.*(gross misconduct|disciplinary action)/, // "dismissed ... gross misconduct/disciplinary action"
+    ],
+    threshold: 15,
+    questionId: QuestionIdEnum.DismissedForMisconduct,
+  },
+  {
+    patterns: [
+      'happy to continue with your application',
+      'are you happy to continue',
+      /happy to continue with your application/,
+    ],
+    threshold: 20,
+    questionId: QuestionIdEnum.ContinueApplicationConsent,
   },
   {
     patterns: ['security clearance', 'government clearance'],
