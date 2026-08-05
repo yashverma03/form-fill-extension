@@ -394,6 +394,8 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'work eligibility',
       'eligible to work',
       'right to work',
+      'legally entitled to work',
+      /legally entitled to work.*provide evidence/, // "legally entitled to work ... and can provide evidence"
     ],
     threshold: 40,
     questionId: QuestionIdEnum.LegallyAuthorizedToWork,
@@ -447,6 +449,30 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
   },
   {
     patterns: [
+      'own, control or have an economic interest in any intellectual property',
+      'economic interest in any intellectual property',
+      'own or control any intellectual property',
+      'interest in any patents, trademarks',
+      /(own|control).*economic interest.*(intellectual property|patent|trademark|copyright)/, // "own/control ... economic interest ... intellectual property/patents/trademarks/copyrights"
+    ],
+    threshold: 15,
+    questionId: QuestionIdEnum.IntellectualPropertyInterest,
+  },
+  {
+    patterns: [
+      'secondary employment',
+      'secondary non-',
+      'secondary business activity',
+      'maintain any secondary',
+      'non-primary employment or business activity',
+      /maintain any secondary.*(employment|business activity)/, // "maintain any secondary ... employment/business activity"
+      /secondary.*(employment|business activity).*subject to review/, // "secondary employment/business activity ... subject to review"
+    ],
+    threshold: 15,
+    questionId: QuestionIdEnum.SecondaryEmploymentOrBusinessActivity,
+  },
+  {
+    patterns: [
       'relative working at',
       'relative working',
       'relatives work',
@@ -468,11 +494,13 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'by birth, adoption or marriage',
       'director, officer or senior employee of a client who has authority',
       'authority to award or materially influence any decision to award',
+      'immediate family member',
       /related to (a|an).*(employee|official)/, // "related to a(n) [company] employee/official"
       /family relationship.*(employee|board member)/, // "family relationship" … "employee/board member"
       /close personal (contact|relationship).*(employee|board member)/, // "close personal contact/relationship" … "employee/board member"
       /related to.*(by birth|adoption|marriage).*(government official|close associate)/, // "related to ... birth/adoption/marriage ... official/associate"
       /close associate of.*(government official|director|officer|senior employee)/, // "close associate of" … official/director/officer/senior employee
+      /immediate family member.*(parent|child|sibling|spouse|partner).*(partner|director|officer|employee)/, // "immediate family member (parent, child, sibling, spouse/partner) of a partner/director/officer/employee"
     ],
     threshold: 10,
     questionId: QuestionIdEnum.RelativeAtCompany,
@@ -655,8 +683,11 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'post employment obligations',
       'non-solicitation',
       'non solicitation',
+      'non-competition',
+      'non competition',
       /post-?employment obligations?/, // "post-employment obligation(s)"
       /prohibit or restrict your employment/, // "...may prohibit or restrict your employment..."
+      /non-?compet\w*.*(impact|prevent|restrict|prohibit).*work/, // "non-compet(ition/e)... impact/prevent/restrict/prohibit... work"
     ],
     threshold: 10,
     questionId: QuestionIdEnum.NonCompeteAgreement,
@@ -692,6 +723,10 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'i certify',
       'declaration',
       'accuracy of information',
+      'false information, misrepresentation, or omission of facts',
+      'false information, misrepresentation',
+      'misrepresentation, or omission of facts',
+      /false information.*misrepresentation.*omission of facts/, // "false information, misrepresentation, or omission of facts"
     ],
     threshold: 10,
     questionId: QuestionIdEnum.TermsConsent,

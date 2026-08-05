@@ -77,6 +77,8 @@ export const ANSWERS_DATA: Record<QuestionIdEnum, string> = {
   [QuestionIdEnum.InterviewedAtCompanyBefore]: 'No',
   [QuestionIdEnum.CurrentOrFormerGovernmentOfficial]: 'No',
   [QuestionIdEnum.ReferredByOfficialOrClientExecutive]: 'No',
+  [QuestionIdEnum.IntellectualPropertyInterest]: 'No',
+  [QuestionIdEnum.SecondaryEmploymentOrBusinessActivity]: 'No',
   [QuestionIdEnum.Gender]: 'Male',
   [QuestionIdEnum.Pronouns]: 'He/Him',
   [QuestionIdEnum.DateOfBirth]: '01/01/1998',

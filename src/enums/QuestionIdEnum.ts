@@ -86,6 +86,8 @@ export enum QuestionIdEnum {
   InterviewedAtCompanyBefore = 'InterviewedAtCompanyBefore',
   CurrentOrFormerGovernmentOfficial = 'CurrentOrFormerGovernmentOfficial',
   ReferredByOfficialOrClientExecutive = 'ReferredByOfficialOrClientExecutive',
+  IntellectualPropertyInterest = 'IntellectualPropertyInterest',
+  SecondaryEmploymentOrBusinessActivity = 'SecondaryEmploymentOrBusinessActivity',
 
   // ── EEO / voluntary disclosure ────────────────────────────────────────
   Gender = 'Gender',
