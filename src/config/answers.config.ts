@@ -464,9 +464,15 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'related to a client or government official',
       'dependent or relative of a client',
       'dependent or relative of a government official',
+      'close associate of a current or former government official',
+      'by birth, adoption or marriage',
+      'director, officer or senior employee of a client who has authority',
+      'authority to award or materially influence any decision to award',
       /related to (a|an).*(employee|official)/, // "related to a(n) [company] employee/official"
       /family relationship.*(employee|board member)/, // "family relationship" … "employee/board member"
       /close personal (contact|relationship).*(employee|board member)/, // "close personal contact/relationship" … "employee/board member"
+      /related to.*(by birth|adoption|marriage).*(government official|close associate)/, // "related to ... birth/adoption/marriage ... official/associate"
+      /close associate of.*(government official|director|officer|senior employee)/, // "close associate of" … official/director/officer/senior employee
     ],
     threshold: 10,
     questionId: QuestionIdEnum.RelativeAtCompany,
@@ -495,6 +501,79 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
     // and answered "Yes" instead of "No".
     threshold: 40,
     questionId: QuestionIdEnum.PreviousEmployee,
+  },
+  {
+    patterns: [
+      'indian passport holder',
+      'indian passport',
+      'do you hold an indian passport',
+      'are you an indian passport holder',
+    ],
+    threshold: 30,
+    questionId: QuestionIdEnum.IndianPassportHolder,
+  },
+  {
+    patterns: [
+      'do you currently work for, or with',
+      'work for, or with',
+      'currently work for, or with',
+      'work for or with',
+      /work\s+for,?\s+or\s+with.*(subsidiar|affiliat)/, // "work for, or with [company] or any of its subsidiaries"
+      /(currently\s+)?work\s+for,?\s+or\s+with\b/, // "(currently) work for, or with"
+    ],
+    threshold: 30,
+    questionId: QuestionIdEnum.WorkedForOrWithCompanyOrSubsidiary,
+  },
+  {
+    patterns: [
+      'performed temporary work for',
+      'temporary work for',
+      'temp work for',
+      /temporary work.*(subsidiar|affiliat)/, // "temporary work" … "subsidiaries/affiliates"
+      /performed temporary work/,
+    ],
+    threshold: 30,
+    questionId: QuestionIdEnum.TemporaryWorkForCompanyOrSubsidiary,
+  },
+  {
+    patterns: [
+      'search agency submitted your application',
+      'search agency submitted',
+      'submitted your application for consideration',
+      /search (agency|firm).*submitted.*application/, // "search agency/firm" … "submitted" … "application"
+    ],
+    threshold: 30,
+    questionId: QuestionIdEnum.SearchAgencySubmittedApplication,
+  },
+  {
+    patterns: [
+      'have you ever interviewed for a position',
+      'ever interviewed for a position',
+      'previously interviewed for a position',
+      /ever\s+interviewed\s+for\s+a\s+position/, // "ever interviewed for a position"
+    ],
+    threshold: 30,
+    questionId: QuestionIdEnum.InterviewedAtCompanyBefore,
+  },
+  {
+    patterns: [
+      'are you a current or former government official',
+      'current or former government official',
+      /^are you a (current or former )?government official\??$/,
+    ],
+    threshold: 30,
+    questionId: QuestionIdEnum.CurrentOrFormerGovernmentOfficial,
+  },
+  {
+    patterns: [
+      'did either of the following refer or recommend you',
+      /refer or recommend you.*government official/, // "...refer or recommend you..." … "government official"
+      /refer or recommend you.*(director|officer|senior employee|client)/, // "...refer or recommend you..." … director/officer/senior employee/client
+      /(government official).*refer or recommend you/, // "government official" … "...refer or recommend you..."
+      /(director|officer|senior employee|client).*refer or recommend you/, // director/officer/senior employee/client … "...refer or recommend you..."
+    ],
+    threshold: 30,
+    questionId: QuestionIdEnum.ReferredByOfficialOrClientExecutive,
   },
   {
     patterns: [
@@ -572,6 +651,12 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'non compete',
       'restrictive covenant',
       'bound by agreement',
+      'post-employment obligations',
+      'post employment obligations',
+      'non-solicitation',
+      'non solicitation',
+      /post-?employment obligations?/, // "post-employment obligation(s)"
+      /prohibit or restrict your employment/, // "...may prohibit or restrict your employment..."
     ],
     threshold: 10,
     questionId: QuestionIdEnum.NonCompeteAgreement,

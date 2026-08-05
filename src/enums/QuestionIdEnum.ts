@@ -79,6 +79,13 @@ export enum QuestionIdEnum {
   PositionOfControlInBusiness = 'PositionOfControlInBusiness',
   GovernmentOrPoliticalInvolvement = 'GovernmentOrPoliticalInvolvement',
   AuditorEmployment = 'AuditorEmployment',
+  IndianPassportHolder = 'IndianPassportHolder',
+  WorkedForOrWithCompanyOrSubsidiary = 'WorkedForOrWithCompanyOrSubsidiary',
+  TemporaryWorkForCompanyOrSubsidiary = 'TemporaryWorkForCompanyOrSubsidiary',
+  SearchAgencySubmittedApplication = 'SearchAgencySubmittedApplication',
+  InterviewedAtCompanyBefore = 'InterviewedAtCompanyBefore',
+  CurrentOrFormerGovernmentOfficial = 'CurrentOrFormerGovernmentOfficial',
+  ReferredByOfficialOrClientExecutive = 'ReferredByOfficialOrClientExecutive',
 
   // ── EEO / voluntary disclosure ────────────────────────────────────────
   Gender = 'Gender',
