@@ -94,6 +94,7 @@ export enum QuestionIdEnum {
   ContinueApplicationConsent = 'ContinueApplicationConsent',
   ProvidedServicesToTargetCompany = 'ProvidedServicesToTargetCompany',
   WillingToTravelToUSForTraining = 'WillingToTravelToUSForTraining',
+  EngageWithClientEmployeesOnContracts = 'EngageWithClientEmployeesOnContracts',
 
   // ── EEO / voluntary disclosure ────────────────────────────────────────
   Gender = 'Gender',

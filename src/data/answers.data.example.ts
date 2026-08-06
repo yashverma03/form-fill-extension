@@ -75,6 +75,7 @@ export const ANSWERS_DATA: Record<QuestionIdEnum, string> = {
   [QuestionIdEnum.IndianPassportHolder]: 'Yes',
   [QuestionIdEnum.WorkedForOrWithCompanyOrSubsidiary]: 'No',
   [QuestionIdEnum.ProvidedServicesToTargetCompany]: 'No',
+  [QuestionIdEnum.EngageWithClientEmployeesOnContracts]: 'No',
   [QuestionIdEnum.TemporaryWorkForCompanyOrSubsidiary]: 'No',
   [QuestionIdEnum.SearchAgencySubmittedApplication]: 'No',
   [QuestionIdEnum.InterviewedAtCompanyBefore]: 'No',

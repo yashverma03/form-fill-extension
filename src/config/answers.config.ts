@@ -618,6 +618,17 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
   },
   {
     patterns: [
+      'negotiate, influence and/or sign commercial contracts',
+      'negotiate, influence and or sign commercial contracts',
+      'engage with employees to negotiate',
+      /engage\s+with.*employees.*(negotiate|influence|sign)/, // "engage with [company] employees" … "negotiate/influence/sign"
+      /negotiate,?\s*influence\s*(and\/or|and|or)\s*sign.*contracts?/, // "negotiate, influence and/or sign" … "contracts"
+    ],
+    threshold: 30,
+    questionId: QuestionIdEnum.EngageWithClientEmployeesOnContracts,
+  },
+  {
+    patterns: [
       'did either of the following refer or recommend you',
       /refer or recommend you.*government official/, // "...refer or recommend you..." … "government official"
       /refer or recommend you.*(director|officer|senior employee|client)/, // "...refer or recommend you..." … director/officer/senior employee/client
