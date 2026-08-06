@@ -568,6 +568,16 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
   },
   {
     patterns: [
+      'provided services to',
+      'have you ever provided services to',
+      /provided\s+services\s+to.*(directly\s+or\s+indirectly)/, // "provided services to [company]" … "directly or indirectly"
+      /provided\s+services\s+to.*subsidiary/, // "provided services to [company]" … "subsidiary"
+    ],
+    threshold: 30,
+    questionId: QuestionIdEnum.ProvidedServicesToTargetCompany,
+  },
+  {
+    patterns: [
       'performed temporary work for',
       'temporary work for',
       'temp work for',
@@ -961,6 +971,18 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
   },
   {
     patterns: [
+      'currently based at the location this position has been advertised for',
+      'based at the location this position has been advertised for',
+      'currently based at the advertised location',
+      'based at the location advertised for this position',
+      /based\s+at\s+the\s+location.*advertised/, // "based at the location" … "advertised"
+      /currently\s+based\s+at.*location.*advertis/, // "currently based at" … "location" … "advertis(ed)"
+    ],
+    threshold: 30,
+    questionId: QuestionIdEnum.CurrentlyBasedAtAdvertisedLocation,
+  },
+  {
+    patterns: [
       'willing to work from office',
       'willing to work from the office',
       'work from office',
@@ -1025,6 +1047,17 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
     patterns: ['willing to travel', 'travel required', 'business travel'],
     threshold: 25,
     questionId: QuestionIdEnum.WillingToTravel,
+  },
+  {
+    patterns: [
+      'travel to the u.s. for training',
+      'travel to the us for training',
+      'able to travel to the u.s. for training',
+      /travel\s+to\s+the\s+u\.?s\.?.*training/, // "travel to the U.S." … "training"
+      /travel.*training.*(u\.?s\.?|united states)/, // "travel" … "training" … "U.S./United States"
+    ],
+    threshold: 30,
+    questionId: QuestionIdEnum.WillingToTravelToUSForTraining,
   },
   {
     patterns: ['shift', 'night shift', 'rotational shift', 'work shift'],

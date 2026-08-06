@@ -53,6 +53,7 @@ export enum QuestionIdEnum {
 
   // ── Work preferences ──────────────────────────────────────────────────
   WillingToRelocate = 'WillingToRelocate',
+  CurrentlyBasedAtAdvertisedLocation = 'CurrentlyBasedAtAdvertisedLocation',
   EmploymentType = 'EmploymentType',
   WillingToTravel = 'WillingToTravel',
   WorkShift = 'WorkShift',
@@ -91,6 +92,8 @@ export enum QuestionIdEnum {
   RegulatoryInvestigationOrDiscipline = 'RegulatoryInvestigationOrDiscipline',
   DismissedForMisconduct = 'DismissedForMisconduct',
   ContinueApplicationConsent = 'ContinueApplicationConsent',
+  ProvidedServicesToTargetCompany = 'ProvidedServicesToTargetCompany',
+  WillingToTravelToUSForTraining = 'WillingToTravelToUSForTraining',
 
   // ── EEO / voluntary disclosure ────────────────────────────────────────
   Gender = 'Gender',
