@@ -93,6 +93,7 @@ export const ANSWERS_CONFIG: AnswerConfigEntry[] = [
       'mobile number',
       'cell number',
       'contact number',
+      'contact no',
       'telephone',
       'whatsapp',
       'alternate phone',
